@@ -7,8 +7,8 @@ OpenSSL ca mini-howto
 
 * Generate WebID-request
 
- openssl req -new -batch -config conf/webid.conf -out webid.pem -keyout webid.pem
+ openssl req -new -batch -config config/webid.conf -out webid.pem -keyout webid.pem
 
 * Sign certificate
 
- openssl ca -config conf/ca.cnf -notext -out certificate.pem.crt -infiles webid.pem
+ openssl ca -batch -config config/ca.conf -notext -out certificate.pem.crt -infiles webid.pem
