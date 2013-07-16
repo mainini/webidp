@@ -34,7 +34,7 @@ var connect = require('connect'),
 //////////////////// load configuration
 
 nconf.argv().env().file({
-  file: 'config.json'
+  file: 'config/config.json'
 });
 
 nconf.defaults({
