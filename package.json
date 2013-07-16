@@ -1,0 +1,39 @@
+{
+  "name": "WebIDP",
+  "version": "0.0.1",
+  "description": "Identity provider for WebID with ldap-backend",
+  "keywords": [
+    "idp",
+    "identity",
+    "webid",
+    "ldap",
+    "semantic",
+    "semantic web", 
+    "semweb", 
+    "rdf",
+    "linked data"
+  ],
+  "homepage": "http://forschung.ti.bfh.ch/de/institute/institute_for_ict_based_management/forschungsgruppen/identity_and_access_management.html",
+  "private": "true",
+  "directories": {
+  },
+  "engines" : { "node" : ">=0.10.13" },
+  "dependencies": {
+    "connect":     "~2.8.4",
+    "nconf":       "~0.6.7"
+  },
+  "scripts": {
+    "start": "node src/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@pm.ti.bfh.ch:webidp.git"
+  },
+  "author": {
+    "name":  "Pascal Mainini",
+    "email": "pascal.mainini@bfh.ch",
+    "url":   "http://forschung.ti.bfh.ch/de/institute/institute_for_ict_based_management/forschungsgruppen/identity_and_access_management.html"
+  },
+  "license": "Proprietary, see LICENSE",
+  "readmeFilename": "README.md"
+}
