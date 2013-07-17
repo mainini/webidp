@@ -10,3 +10,4 @@ Pending features
   (for genereting pseudonymous/company-based WebIDs)
   or: let the user enter the data?
 * OCSP/CRL
+* Security Audit
