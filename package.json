@@ -19,9 +19,11 @@
   },
   "engines" : { "node" : ">=0.10.13" },
   "dependencies": {
-    "connect":     "~2.8.4",
-    "nconf":       "~0.6.7",
-    "webid":       ">=0.0.4"
+    "connect":              "~2.8.4",
+    "connect-redirection":  "~0.0.1",
+    "nconf":                "~0.6.7",
+    "underscore":           "~1.5.1",
+    "webid":                ">=0.0.4"
   },
   "scripts": {
     "start": "node src/server.js"
