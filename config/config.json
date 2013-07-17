@@ -1,0 +1,7 @@
+{
+  "server": {
+    "logformat": "dev",
+    "directoryListings": true,
+    "redirectSSL": false
+  }
+}
