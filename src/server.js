@@ -20,18 +20,15 @@
  **********************************************************/
 
 'use strict';
-var connect = require('connect'),
-//  webid = require('webid'),
+
+var fs = require('fs'),
+  https = require('https'),
   nconf = require('nconf'),
-  fs = require('fs'),
-  https = require('https');
+  connect = require('connect');
+//  webid = require('webid'),
+  
 
-
-/***********************************************************
- * Main application
- **********************************************************/
-
-//////////////////// load configuration
+///////////////////// load configuration
 
 nconf.argv().env().file({
   file: 'config/config.json'
@@ -42,25 +39,37 @@ nconf.defaults({
     'port': 8080,
     'key': 'config/server.key',
     'cert': 'config/server.crt',
-    'logging': 'dev'
+    'logging': 'dev',
+    'directoryListings': true
   }
 });
 
-//////////////////// setup server
+
+/***********************************************************
+ * Function definitions
+ **********************************************************/
+
+var _sendNotFound = function _sendNotFound(req, res) {
+  res.setHeader('Content-Type', 'text/plain; charset=UTF-8');
+  res.statusCode = 404;
+  res.end('Not found.\n');
+};
 
 
-var app = connect()
-  .use(connect.logger(nconf.get('server:logging')))
-  .use(connect.static('static'))
-  .use(connect.directory('static'))
-  .use(function(req, res){
-    res.end('hello world\n');
-  });
+/***********************************************************
+ * Main application
+ **********************************************************/
 
-var options = {
+var serverOptions = {
   key: fs.readFileSync(nconf.get('server:key')),
   cert: fs.readFileSync(nconf.get('server:cert')),
   requestCert: false
 };
 
-https.createServer(options, app).listen(nconf.get('server:port'));
+var app = connect();
+app.use(connect.logger(nconf.get('server:logging')));
+if(nconf.get('server:directoryListings')) { app.use('/static', connect.directory('static')); }
+app.use('/static', connect.static('static'));
+app.use(_sendNotFound);
+
+https.createServer(serverOptions, app).listen(nconf.get('server:port'));
