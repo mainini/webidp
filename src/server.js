@@ -24,7 +24,6 @@
 'use strict';
 
 var fs = require('fs'),
-  http = require('http'),
   https = require('https'),
   _ = require('underscore'),
   nconf = require('nconf'),
@@ -40,15 +39,14 @@ nconf.argv().env().file({
 });
 
 nconf.defaults({
+  'caCertificate': 'config/ca.crt',
   'server': {
     'fqdn': 'localhost',
-    'port': 8080,
-    'sslPort': 8443,
+    'port': 8443,
     'key': 'config/server.key',
     'cert': 'config/server.crt',
     'logformat': ':req[host] - :remote-addr - - [:date] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"',
-    'directoryListings': false,
-    'redirectSSL': true
+    'directoryListings': false
   }
 });
 
@@ -73,10 +71,6 @@ var _sendError = function _sendError (req, res, error) {
   } else {
     res.end('ERROR: Something bad happened\n');
   }
-};
-
-var _redirectSSL = function _redirectSSL (req, res) {
-  res.redirect(301, 'https://' + nconf.get('server:fqdn') + ':' + nconf.get('server:sslPort') + req.url);
 };
 
 var _profile = function _profile (req, res) {
@@ -128,7 +122,7 @@ var _doLogin = function _doLogin (req,res) {
         msg = 'Missformed WebID!';
         break;
       default:
-        msg = 'Unknown WebID error!';
+        msg = 'WebID error: ' + result;
         break;
       }
 
@@ -144,29 +138,16 @@ var _doLogin = function _doLogin (req,res) {
  * Main application
  **********************************************************/
 
-///////////////////// Setup non-SSL-server
-
-var app = connect();
-app.use(connect.logger(nconf.get('server:logformat')));
-app.use(redirect());
-
-if (nconf.get('server:directoryListings')) { app.use('/static', connect.directory('static')); }
-app.use('/static', connect.static('static'));
-
-app.use('/id', connect.static('static'));       // @todo temporary hack for the WebID...
-
-if (nconf.get('server:redirectSSL')) { app.use(_redirectSSL); }
-app.use(_sendNotFound);
-
-http.createServer(app).listen(nconf.get('server:port'));
-
-
 ///////////////////// Setup SSL-server
+
+var cacert = fs.readFileSync(nconf.get('caCertificate'));
+https.globalAgent.options.ca = cacert;      // override default ca-certs so that request used by webid can fetch the profile...
 
 var serverOptions = {
   key: fs.readFileSync(nconf.get('server:key')),
   cert: fs.readFileSync(nconf.get('server:cert')),
-  requestCert: true
+  ca: cacert,
+  requestCert: true,
 };
 
 var sslApp = connect();
@@ -177,9 +158,10 @@ sslApp.use(connect.session({ key: 'session', secret: Math.random().toString() })
 
 if (nconf.get('server:directoryListings')) { sslApp.use('/static', connect.directory('static')); }
 sslApp.use('/static', connect.static('static'));
+sslApp.use('/id', connect.static('static'));       // @todo temporary hack for the WebID...
 
 sslApp.use('/profile', _profile);
 sslApp.use(_doLogin);
 sslApp.use(_sendNotFound);
 
-https.createServer(serverOptions, sslApp).listen(nconf.get('server:sslPort'));
+https.createServer(serverOptions, sslApp).listen(nconf.get('server:port'));
