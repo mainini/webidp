@@ -24,6 +24,7 @@
 'use strict';
 
 var fs = require('fs'),
+  crypto = require('crypto'),
   https = require('https'),
   _ = require('underscore'),
   nconf = require('nconf'),
@@ -154,7 +155,7 @@ var sslApp = connect();
 sslApp.use(connect.logger(nconf.get('server:logformat')));
 sslApp.use(redirect());
 sslApp.use(connect.cookieParser());
-sslApp.use(connect.session({ key: 'session', secret: Math.random().toString() }));
+sslApp.use(connect.session({ key: 'session', secret: crypto.randomBytes(32).toString() }));
 
 if (nconf.get('server:directoryListings')) { sslApp.use('/static', connect.directory('static')); }
 sslApp.use('/static', connect.static('static'));
