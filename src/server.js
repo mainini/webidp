@@ -95,42 +95,49 @@ var _doLogin = function _doLogin (req,res) {
 
   } else {
 
-    new webid.VerificationAgent(certificate).verify(function _verifySuccess (result) {
+    if (!req.connection.authorized) {
 
-      // WebID-verification was successful!
+      _sendError(req, res, 'Certificate signed by unknown authority!');
 
-      req.session.profile = result;
-      req.session.parsedProfile = new webid.Foaf(result).parse();
-      req.session.identified = true;
-      res.redirect('/profile');
+    } else {
 
-    }, function _verifyError(result) {
+      new webid.VerificationAgent(certificate).verify(function _verifySuccess (result) {
 
-      // Failed WebID-verification!
+        // WebID-verification was successful!
 
-      var msg;
-      switch (result) {
-      case 'certificateProvidedSAN':
-        msg = 'No valid Subject Alternative Name in certificate!';
-        break;
-      case 'profileWellFormed':
-        msg = 'Error while loading FOAF-profile (RDF not valid?)!';
-        break;
-      case 'falseWebID':
-        msg = 'Certificate public key doesn\'t match FOAF-profile!';
-        break;
-      case 'profileAllKeysWellFormed':
-        msg = 'Missformed WebID!';
-        break;
-      default:
-        msg = 'WebID error: ' + result;
-        break;
-      }
+        req.session.profile = result;
+        req.session.parsedProfile = new webid.Foaf(result).parse();
+        req.session.identified = true;
+        res.redirect('/profile');
 
-      _sendError(req, res, msg);
+      }, function _verifyError(result) {
 
-    });
+        // Failed WebID-verification!
 
+        var msg;
+        switch (result) {
+        case 'certificateProvidedSAN':
+          msg = 'No valid Subject Alternative Name in certificate!';
+          break;
+        case 'profileWellFormed':
+          msg = 'Error while loading FOAF-profile (RDF not valid?)!';
+          break;
+        case 'falseWebID':
+          msg = 'Certificate public key doesn\'t match FOAF-profile!';
+          break;
+        case 'profileAllKeysWellFormed':
+          msg = 'Missformed WebID!';
+          break;
+        default:
+          msg = 'WebID error: ' + result;
+          break;
+        }
+
+        _sendError(req, res, msg);
+
+      });
+
+    }
   }
 };
 
@@ -149,6 +156,7 @@ var serverOptions = {
   cert: fs.readFileSync(nconf.get('server:cert')),
   ca: cacert,
   requestCert: true,
+  rejectUnauthorized: false
 };
 
 var sslApp = connect();
