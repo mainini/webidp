@@ -85,9 +85,15 @@ var _profile = function _profile (req, res) {
     res.statusCode = 401;
     res.end('Unauthorized!\n');
   }
+
 };
 
-var _doLogin = function _doLogin (req,res) {
+var _doLogin = function _doLogin (req, res, next) {
+
+  if (req.session.identified) {
+    next();
+  }
+
   var certificate = req.connection.getPeerCertificate();
   if (_.isEmpty(certificate)) {
 
@@ -165,12 +171,14 @@ sslApp.use(redirect());
 sslApp.use(connect.cookieParser());
 sslApp.use(connect.session({ key: 'session', secret: crypto.randomBytes(32).toString() }));
 
-if (nconf.get('server:directoryListings')) { sslApp.use('/static', connect.directory('static')); }
-sslApp.use('/static', connect.static('static'));
+if (nconf.get('server:directoryListings')) { sslApp.use(connect.directory('static')); }
+sslApp.use(connect.static('static'));
+
 sslApp.use('/id', connect.static('static'));       // @todo temporary hack for the WebID...
 
+sslApp.use('/profile', _doLogin);
 sslApp.use('/profile', _profile);
-sslApp.use(_doLogin);
+
 sslApp.use(_sendNotFound);
 
 https.createServer(serverOptions, sslApp).listen(nconf.get('server:port'));
