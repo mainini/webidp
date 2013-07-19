@@ -1,6 +1,7 @@
 {
   "server": {
     "logformat": "dev",
+    "cacheTemplates": false,
     "directoryListings": true
   }
 }

@@ -27,28 +27,30 @@ var fs = require('fs'),
   crypto = require('crypto'),
   https = require('https'),
   _ = require('underscore'),
-  nconf = require('nconf'),
+  cfg = require('nconf'),
   connect = require('connect'),
-  redirect = require('connect-redirection'),
+  render = require('connect-render'),
   webid = require('webid');
   
 
 ///////////////////// initialise configuration
 
-nconf.argv().env().file({
+cfg.argv().env().file({
   file: 'config/config.json'
 });
 
-nconf.defaults({
-  'caCertificate': 'config/ca.crt',
+cfg.defaults({
   'server': {
     'fqdn': 'localhost',
     'port': 8443,
     'key': 'config/server.key',
     'cert': 'config/server.crt',
     'logformat': ':req[host] - :remote-addr - - [:date] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"',
-    'directoryListings': false
-  }
+    'directoryListings': false,
+    'cacheTemplates': true
+  },
+  'caCertificate': 'config/ca.crt',
+  'pageTitle' : 'WebIDP --- '
 });
 
 
@@ -56,68 +58,52 @@ nconf.defaults({
  * Function definitions
  **********************************************************/
 
-var _sendNotFound = function _sendNotFound (req, res) {
-  res.statusCode = 404;
-  res.setHeader('Content-Type', 'text/plain; charset=UTF-8');
+var _error = function _error (req, res, next, code, error) {
+  res.statusCode = (typeof code === 'undefined') ? 500 : code;
+  error = (typeof error === 'undefined') ?  'Something bad happened...' : error;
 
-  res.end('Not found.\n');
+  res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+  res.render('error.html', { title: cfg.get('pageTitle') + 'Error! ' + error, error: error });
 };
 
-var _sendError = function _sendError (req, res, error) {
-  res.statusCode = 500;
-  res.setHeader('Content-Type', 'text/plain; charset=UTF-8');
-
-  if (error) {
-    res.end('ERROR: ' + error + '\n');
-  } else {
-    res.end('ERROR: Something bad happened\n');
-  }
+var _notFound = function _notFound(req, res, next) {
+  return _error(req, res, next, 404, 'Page not found!');
 };
 
 var _profile = function _profile (req, res) {
-  res.setHeader('Content-Type', 'text/plain; charset=UTF-8');
+  res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 
-  if (req.session.identified) {
-    res.statusCode = 200;
-    res.write('Welcome back, ' + req.session.parsedProfile.name + '!\n');
-    res.end('You have successfully authenticated using your WebID ' + req.session.parsedProfile.webid + '.\n');
-  } else {
-    res.statusCode = 401;
-    res.end('Unauthorized!\n');
-  }
-
+  res.statusCode = 200;
+  res.render('index.html', { title: cfg.get('pageTitle') + 'Profile', parsedProfile: req.session.parsedProfile });
 };
 
 var _doLogin = function _doLogin (req, res, next) {
-
   if (req.session.identified) {
-    next();
+    return next();
   }
 
   var certificate = req.connection.getPeerCertificate();
   if (_.isEmpty(certificate)) {
 
-    _sendError(req, res, 'Certificate not provided!');
+    _error(req, res, next, 401, 'Authorisation failed: Certificate not provided!');
 
   } else {
 
     if (!req.connection.authorized) {
 
-      _sendError(req, res, 'Certificate signed by unknown authority!');
+      _error(req, res, next, 401, 'Authorisation failed: Certificate signed by unknown authority!');
 
     } else {
 
       new webid.VerificationAgent(certificate).verify(function _verifySuccess (result) {
-
         // WebID-verification was successful!
 
         req.session.profile = result;
         req.session.parsedProfile = new webid.Foaf(result).parse();
         req.session.identified = true;
-        res.redirect('/profile');
+        next();
 
       }, function _verifyError(result) {
-
         // Failed WebID-verification!
 
         var msg;
@@ -138,9 +124,7 @@ var _doLogin = function _doLogin (req, res, next) {
           msg = 'WebID error: ' + result;
           break;
         }
-
-        _sendError(req, res, msg);
-
+        _error(req, res, next, 401, 'Authorisation failed: ' + msg);
       });
 
     }
@@ -154,24 +138,23 @@ var _doLogin = function _doLogin (req, res, next) {
 
 ///////////////////// Setup SSL-server
 
-var cacert = fs.readFileSync(nconf.get('caCertificate'));
+var cacert = fs.readFileSync(cfg.get('caCertificate'));
 https.globalAgent.options.ca = cacert;      // override default ca-certs so that request used by webid can fetch the profile...
 
 var serverOptions = {
-  key: fs.readFileSync(nconf.get('server:key')),
-  cert: fs.readFileSync(nconf.get('server:cert')),
+  key: fs.readFileSync(cfg.get('server:key')),
+  cert: fs.readFileSync(cfg.get('server:cert')),
   ca: cacert,
   requestCert: true,
   rejectUnauthorized: false
 };
 
-var sslApp = connect();
-sslApp.use(connect.logger(nconf.get('server:logformat')));
-sslApp.use(redirect());
+var sslApp = connect(render({ root: './views', layout: false, cache: cfg.get('server:cacheTemplates') }));
+sslApp.use(connect.logger(cfg.get('server:logformat')));
 sslApp.use(connect.cookieParser());
 sslApp.use(connect.session({ key: 'session', secret: crypto.randomBytes(32).toString() }));
 
-if (nconf.get('server:directoryListings')) { sslApp.use(connect.directory('static')); }
+if (cfg.get('server:directoryListings')) { sslApp.use(connect.directory('static')); }
 sslApp.use(connect.static('static'));
 
 sslApp.use('/id', connect.static('static'));       // @todo temporary hack for the WebID...
@@ -179,6 +162,6 @@ sslApp.use('/id', connect.static('static'));       // @todo temporary hack for t
 sslApp.use('/profile', _doLogin);
 sslApp.use('/profile', _profile);
 
-sslApp.use(_sendNotFound);
+sslApp.use(_notFound);
 
-https.createServer(serverOptions, sslApp).listen(nconf.get('server:port'));
+https.createServer(serverOptions, sslApp).listen(cfg.get('server:port'));
