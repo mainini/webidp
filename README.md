@@ -11,3 +11,7 @@ Pending features
   or: let the user enter the data?
 * OCSP/CRL
 * Security Audit
+* PFS
+    * <https://tools.ietf.org/html/rfc6460>
+    * <http://stackoverflow.com/questions/10185110/key-generation-requirements-for-tls-ecdhe-ecdsa-aes128-gcm-sha256>
+    * <http://stackoverflow.com/questions/10201030/using-node-js-tls-passphrase-and-cipher-options-when-creating-a-server-and-clien>
