@@ -33,14 +33,16 @@ var fs = require('fs'),
 
 exports.TripleStore = (function() {
   var instance = null;
+  var storeCallback = null;
 
 ///////////////////// 'constructor'
 
-  function PrivateConstructor(cfg) {
+  function PrivateConstructor(cfg, storeCallback) {
     this.cfg = cfg;
     this.idUri = 'https://' + this.cfg.get('server:fqdn') + ':' + this.cfg.get('server:port') + '/id/';
 
     this.addId = function addId(id, name, label, modulus, exponent) {
+
 
       var jsonld = {
         '@context': {
@@ -79,15 +81,13 @@ exports.TripleStore = (function() {
     };
 
     if (this.cfg.get('db:enabled')) {
-      rdfstore.create({persistent:true,
-                    engine: 'mongodb',
-                    name: this.cfg.get('db:name'),
-                    overwrite: this.cfg.get('db:overwrite'),
-                    mongoDomain: this.cfg.get('db:server'),
-                    mongoPort: this.cfg.get('db:port')
-                  }, function _gotStore(store) {
-                    exports.TripleStore.getInstance().store = store;
-                  });
+      rdfstore.create({ persistent:true,
+                        engine: 'mongodb',
+                        name: this.cfg.get('db:name'),
+                        overwrite: this.cfg.get('db:overwrite'),
+                        mongoDomain: this.cfg.get('db:server'),
+                        mongoPort: this.cfg.get('db:port') },
+                        storeCallback);
     } else {
       this.store = rdfstore.create();
     }
@@ -97,11 +97,24 @@ exports.TripleStore = (function() {
 ///////////////////// returned function
 
   return new function() {
-    this.getInstance = function getInstance(cfg) {
+    this._storeReady = function _storeReady(store) {
+        instance.store = store;
+        if (storeCallback) {
+          storeCallback();
+        }
+    };
+
+    this.getInstance = function getInstance(cfg, scb) {
+      storeCallback = scb;
       if (instance === null) {
-        instance = new PrivateConstructor(cfg);
+        instance = new PrivateConstructor(cfg, this._storeReady);
         instance.constructor = null;
+      } else {
+        if (storeCallback) {
+          storeCallback();
+        }
       }
+
       return instance;
     };
   }

@@ -3,5 +3,9 @@
     "logformat": "dev",
     "cacheTemplates": false,
     "directoryListings": true
+  },
+  "db": {
+    "enabled": false,
+    "overwrite": false
   }
 }
