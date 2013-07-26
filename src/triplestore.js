@@ -23,8 +23,7 @@
 
 'use strict';
 
-var fs = require('fs'),
-    rdfstore = require('rdfstore');
+var rdfstore = require('rdfstore');
 
 
 /***********************************************************
