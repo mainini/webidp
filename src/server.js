@@ -30,7 +30,8 @@ var fs = require('fs'),
   cfg = require('nconf'),
   connect = require('connect'),
   render = require('connect-render'),
-  webid = require('webid');
+  webid = require('webid'),
+  triplestore = require('./triplestore.js');
   
 
 ///////////////////// initialise configuration
@@ -50,9 +51,25 @@ cfg.defaults({
     'cacheTemplates': true
   },
   'caCertificate': 'config/ca.crt',
-  'pageTitle' : 'WebIDP --- '
+  'pageTitle' : 'WebIDP --- ',
+  'idFragment' : 'me',
+  'db': {
+    'enabled': true,
+    'name': 'webidp',
+    'server': 'localhost',
+    'port': '27017',
+    'overwrite': false
+  }
 });
 
+
+///////////////////// Setup triplestore
+
+var store = triplestore.TripleStore.getInstance(cfg);
+
+store.addId('test', 'Justus Testus', 'The key label',
+            'DDE3B46716DDB181E052BC165E404CDEF62B5CBFC221E364F5422B488D6CFBAD8D3E5B71BDE427C78054FD47F4C1E713877D029DB6A8EE01030260C16454A746567EC4123B1CC2A698F85FC3CAC7599CC7B94DC707B0CCBF58034E74E8623874744DB95F26C4366DB377798FDD9CFA09F7CBE658D11FD58536A544D98362A96DED9A71C461141CE019F27419128D663D35EEB0A0EA883DD81024BE7BD18021BDB232CCAAD11E8D36EEC66AE91283AA25A64C4492FDF7BF812DB19114CDD86CF54AA16EC212188A4780C43363AB20B2D6BE23658EFDA49DFFF96E18622C4D8F8F0E5C6A22619D685227598AE8DADED5585963A3005349160D12BB2E732E7AC468B0FAAEDE21ABDC97884258A363C5E7ED74977F1BBBF40FC29BBED1BAB1BABCD0660E422CFAAB3F37E2FD57E5706CAFF22403B81C8B932EE1B046CDF2C401595136BBD7185BA7A6DBCFB8C37BE0DCB79569856247ACB83DE1405BBA1CE390477463C2F2DECC39AE3663D3DCF80F43C38B7AEA3BCE617625E5A7AE0AC254AAC65A8AF751454260CA80A412AD85B822C2495E2A51A55F34C0086B47670F7216FBF32DDFDC5B43FC0853DE08D3C1EBEA365263F85EB2B61097EE7D3274C3C5B78791D47F8B68D380EA47661CC175D3666AFB0B5D11612F9159B91706C4225CAA606A75A49DC22309EF29DDB831DAB28EC7903CE23626918DD18E8781A731D6FB3649',
+            65537);
 
 /***********************************************************
  * Function definitions
@@ -60,9 +77,9 @@ cfg.defaults({
 
 var _error = function _error (req, res, next, code, error) {
   res.statusCode = (typeof code === 'undefined') ? 500 : code;
-  error = (typeof error === 'undefined') ?  'Something bad happened...' : error;
-
   res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+
+  error = (typeof error === 'undefined') ?  'Something bad happened...' : error;
   res.render('error.html', { title: cfg.get('pageTitle') + 'Error! ' + error, error: error });
 };
 
@@ -71,10 +88,23 @@ var _notFound = function _notFound(req, res, next) {
 };
 
 var _profile = function _profile (req, res) {
+  res.statusCode = 200;
   res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 
-  res.statusCode = 200;
   res.render('index.html', { title: cfg.get('pageTitle') + 'Profile', parsedProfile: req.session.parsedProfile });
+};
+
+var _id = function _id(req, res, next) {
+
+  store.getId(req.url.substr(1), function _gotId(content) {
+    if (content.length === 0) {
+      _notFound(req, res, next);
+    } else {
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'text/turtle; charset=UTF-8');
+      res.end(content);
+    }
+  });
 };
 
 var _doLogin = function _doLogin (req, res, next) {
@@ -157,7 +187,7 @@ sslApp.use(connect.session({ key: 'session', secret: crypto.randomBytes(32).toSt
 if (cfg.get('server:directoryListings')) { sslApp.use(connect.directory('static')); }
 sslApp.use(connect.static('static'));
 
-sslApp.use('/id', connect.static('static'));       // @todo temporary hack for the WebID...
+sslApp.use('/id', _id);
 
 sslApp.use('/profile', _doLogin);
 sslApp.use('/profile', _profile);
