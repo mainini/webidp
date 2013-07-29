@@ -10,9 +10,6 @@
  * LICENSE IS SUBJECT OF CHANGE ANYTIME SOON - DO NOT DISTRIBUTE!
  *
  * ! WARNING ! WARNING ! WARNING ! WARNING ! WARNING ! WARNING !
- *
- * @todo document functions
- * @todo templated html-output
  */
 
 /*jshint node:true, bitwise:true, curly:true, immed:true, indent:2, latedef:true, newcap:true, noarg: true, noempty:true, nonew:true, quotmark:single, undef:true, unused: true, trailing:true, white:false */
