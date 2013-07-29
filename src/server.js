@@ -184,8 +184,8 @@ sslApp.use(connect.logger(cfg.get('server:logformat')));
 sslApp.use(connect.cookieParser());
 sslApp.use(connect.session({ key: 'session', secret: crypto.randomBytes(32).toString() }));
 
-if (cfg.get('server:directoryListings')) { sslApp.use(connect.directory('static')); }
-sslApp.use(connect.static('static'));
+if (cfg.get('server:directoryListings')) { sslApp.use('/static', connect.directory('static')); }
+sslApp.use('/static', connect.static('static'));
 
 sslApp.use('/id', _id);
 
