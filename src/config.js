@@ -28,7 +28,7 @@ cfg.defaults({
     'port': 8443,
     'key': 'config/server.key',
     'cert': 'config/server.crt',
-    'logformat': ':req[host] - :remote-addr - - [:date] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"',
+    'logformat': 'default',
     'directoryListings': false,
     'cacheTemplates': true
   },
@@ -46,9 +46,9 @@ cfg.defaults({
   'webid': {
     'subject': {},
     'sha256': true,
-    'fragment' : 'me'
+    'fragment': 'me'
   },
-  'pageTitle' : 'WebIDP --- '
+  'pageTitle': 'WebIDP --- '
 });
 
 module.exports.get = function get(key) {
