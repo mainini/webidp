@@ -34,7 +34,6 @@ exports.TripleStore = (function() {
 ///////////////////// 'constructor'
 
   function PrivateConstructor() {
-    this.idUri = 'https://' + cfg.get('server:fqdn') + ':' + cfg.get('server:port') + '/id/';
 
     this.addId = function addId(id, name, label, modulus, exponent) {
       var jsonld = {
@@ -53,7 +52,7 @@ exports.TripleStore = (function() {
           }
         },
 
-        '@id': this.idUri + id +  '#' + cfg.get('idFragment'),
+        '@id': cfg.getIdUriFull(id),
         '@type': 'foaf:Person',
         'foaf:name': name,
         'cert:key': {
@@ -64,11 +63,11 @@ exports.TripleStore = (function() {
         }
       };
 
-      this.store.load('application/ld+json', jsonld, this.idUri + id, function _storeLoad(success, results) {});
+      this.store.load('application/ld+json', jsonld, cfg.getIdUri(id), function _storeLoad(success, results) {});
     };
 
     this.getId = function getId(id, callback) {
-      this.store.graph(this.idUri + id, function(success, graph){
+      this.store.graph(cfg.getIdUri(id), function(success, graph){
         callback(graph.toNT());
       });
     };
