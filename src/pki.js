@@ -22,11 +22,9 @@
 
 var fs = require('fs'),
   forge = require('node-forge'),
-  cfg = require('./config.js'),
-  triplestore = require('./triplestore.js');
+  cfg = require('./config.js');
 
 var pki = forge.pki;
-var store = triplestore.TripleStore.getInstance();
 
 /***********************************************************
  * Function definitions
@@ -35,7 +33,7 @@ var store = triplestore.TripleStore.getInstance();
 var caCert = forge.pki.certificateFromPem(fs.readFileSync(cfg.get('ca:cert'), 'utf8'));
 var caKey = forge.pki.privateKeyFromPem(fs.readFileSync(cfg.get('ca:key'), 'utf8'));
 
-var createCertificate = function createCertificate(id, cn, email, publicKey) {
+var createCertificate = function createCertificate(id, cn, email, publicKey, serial) {
 
   var subject = [{'name': 'commonName', 'value': cn}];
   for (var k in cfg.get('webid:subject')) {
@@ -46,7 +44,7 @@ var createCertificate = function createCertificate(id, cn, email, publicKey) {
   cert.setSubject(subject);
   cert.setIssuer(caCert.subject.attributes);
   cert.publicKey = publicKey;
-  cert.serialNumber = store.getNextSerialNumber();
+  cert.serialNumber = serial;
 
   cert.validity.notBefore = new Date();
   cert.validity.notAfter = new Date();
@@ -72,5 +70,5 @@ var createCertificate = function createCertificate(id, cn, email, publicKey) {
 };
 
 var keys = pki.rsa.generateKeyPair(1024);
-var cert = createCertificate('test', 'Justus Testus', 'justus.testus@bfh.ch', keys.publicKey);
+var cert = createCertificate('test', 'Justus Testus', 'justus.testus@bfh.ch', keys.publicKey, '01');
 console.log(pki.certificateToPem(cert));
