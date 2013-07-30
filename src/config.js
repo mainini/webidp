@@ -36,15 +36,31 @@ cfg.defaults({
     'cert': 'config/ca.crt',
     'key': 'config/ca.key'
   },
-  'pageTitle' : 'WebIDP --- ',
-  'idFragment' : 'me',
   'db': {
     'enabled': true,
     'name': 'webidp',
     'server': 'localhost',
     'port': '27017',
     'overwrite': false
-  }
+  },
+  'webid': {
+    'subject': {},
+    'sha256': true,
+    'fragment' : 'me'
+  },
+  'pageTitle' : 'WebIDP --- '
 });
 
-module.exports = cfg;
+module.exports.get = function get(key) {
+  return cfg.get(key);
+};
+
+var getIdUri = function getIdUri(id) {
+  return 'https://' + cfg.get('server:fqdn') + ':' + cfg.get('server:port') + '/id/' + id;
+};
+
+module.exports.getIdUri = getIdUri;
+
+module.exports.getIdUriFull = function getIdUriFull(id) {
+  return getIdUri(id) + '#' + cfg.get('webid:fragment');
+};

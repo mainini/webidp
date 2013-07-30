@@ -72,6 +72,10 @@ exports.TripleStore = (function() {
       });
     };
 
+    this.getNextSerialNumber = function getNextSerialNumber() {
+      return '01';
+    };
+
     this.initialiseStore = function _initialiseStore() {
       var _storeReady = function _storeReady(store) {
         instance.store = store;

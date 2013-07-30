@@ -7,5 +7,11 @@
   "db": {
     "enabled": false,
     "overwrite": false
+  },
+  "webid": {
+    "subject": {
+      "countryName": "CH",
+      "organizationName": "Berne University of Applied Sciences"
+    }
   }
 }
