@@ -16,7 +16,11 @@
 
 'use strict';
 
-var cfg = require('nconf');
+var cfg = require('nconf'),
+  datejs = require('safe_datejs');
+
+var DEFAULT_VALIDITY_START = 'now';
+var DEFAULT_VALIDITY_END = '1 year';
 
 cfg.argv().env().file({
   file: 'config/config.json'
@@ -46,7 +50,9 @@ cfg.defaults({
   'webid': {
     'subject': {},
     'sha256': true,
-    'fragment': 'me'
+    'fragment': 'me',
+    'validityStart': DEFAULT_VALIDITY_START,
+    'validityEnd': DEFAULT_VALIDITY_END
   },
   'pageTitle': 'WebIDP --- '
 });
@@ -58,9 +64,68 @@ module.exports.get = function get(key) {
 var getIdUri = function getIdUri(id) {
   return 'https://' + cfg.get('server:fqdn') + ':' + cfg.get('server:port') + '/id/' + id;
 };
-
 module.exports.getIdUri = getIdUri;
 
 module.exports.getIdUriFull = function getIdUriFull(id) {
   return getIdUri(id) + '#' + cfg.get('webid:fragment');
 };
+
+var getValidityStart = function getValidityStart() {
+  var date;
+
+  if (cfg.get('webid:validityStart') === 'now') {
+    date = new Date();
+  } else {
+    date = new Date(cfg.get('webid:validityStart'));
+  }
+
+  if (isNaN(date.valueOf())) {
+    console.log('ERROR: Invalid date specified for webid:validityStart, reverting to default!');
+    cfg.set('webid:validityStart', DEFAULT_VALIDITY_START);
+    return getValidityStart();
+  } else {
+    return date;
+  }
+};
+module.exports.getValidityStart = getValidityStart;
+
+var getValidityEnd = function getValidityEnd() {
+  var date = getValidityStart().AsDateJs();
+  var end = cfg.get('webid:validityEnd');
+
+  var match = end.match(/([0-9]+) years?/);
+  if(match) {
+    date.addYears(parseInt(match[1], 10));
+  } else {
+    match = end.match(/([0-9]+) months?/);
+    if (match) {
+      date.addMonths(parseInt(match[1], 10));
+    } else {
+      match = end.match(/([0-9]+) days?/);
+      if (match) {
+        date.addDays(parseInt(match[1], 10));
+      } else {
+        match = end.match(/([0-9]+) hours?/);
+        if (match) {
+          date.addHours(parseInt(match[1], 10));
+        } else {
+          match = end.match(/([0-9]+) minutes?/);
+          if (match) {
+            date.addMinutes(parseInt(match[1], 10));
+          } else {
+            date = new Date(end);
+          }
+        }
+      }
+    }
+  }
+
+  if (isNaN(date.valueOf())) {
+    console.log('ERROR: Invalid date specified for webid:validityEnd, reverting to default!');
+    cfg.set('webid:validityEnd', DEFAULT_VALIDITY_END);
+    return getValidityEnd();
+  } else {
+    return date;
+  }
+};
+module.exports.getValidityEnd  = getValidityEnd;

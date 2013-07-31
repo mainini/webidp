@@ -45,11 +45,8 @@ var createCertificate = function createCertificate(id, cn, email, publicKey, ser
   cert.setIssuer(caCert.subject.attributes);
   cert.publicKey = publicKey;
   cert.serialNumber = serial;
-
-  cert.validity.notBefore = new Date();
-  cert.validity.notAfter = new Date();
-  cert.validity.notAfter.setFullYear(cert.validity.notBefore.getFullYear() + 1);
-
+  cert.validity.notBefore = cfg.getValidityStart();
+  cert.validity.notAfter = cfg.getValidityEnd();
   cert.setExtensions([{ name: 'basicConstraints', cA: false },
     { name: 'keyUsage', digitalSignature: 'true', },
     { name: 'extKeyUsage', clientAuth: true, emailProtection: true },

@@ -26,6 +26,7 @@
     "node-forge":           "~0.1.9",
     "underscore":           "~1.5.1",
     "rdfstore":             "~0.8.1",
+    "safe_datejs":          "~0.0.1",
     "webid":                ">=0.0.4"
   },
   "scripts": {
