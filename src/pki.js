@@ -26,14 +26,14 @@ var fs = require('fs'),
 
 var pki = forge.pki;
 
+
 /***********************************************************
  * Function definitions
  **********************************************************/
 
-var caCert = forge.pki.certificateFromPem(fs.readFileSync(cfg.get('ca:cert'), 'utf8'));
-var caKey = forge.pki.privateKeyFromPem(fs.readFileSync(cfg.get('ca:key'), 'utf8'));
-
-var createCertificate = function createCertificate(id, cn, email, publicKey, serial) {
+module.exports.createCertificate = function createCertificate(id, cn, email, publicKey, serial) {
+  var caCert = forge.pki.certificateFromPem(fs.readFileSync(cfg.get('ca:cert'), 'utf8'));
+  var caKey = forge.pki.privateKeyFromPem(fs.readFileSync(cfg.get('ca:key'), 'utf8'));
 
   var subject = [{'name': 'commonName', 'value': cn}];
   for (var k in cfg.get('webid:subject')) {
@@ -65,7 +65,3 @@ var createCertificate = function createCertificate(id, cn, email, publicKey, ser
 
   return cert;
 };
-
-var keys = pki.rsa.generateKeyPair(1024);
-var cert = createCertificate('test', 'Justus Testus', 'justus.testus@bfh.ch', keys.publicKey, '01');
-console.log(pki.certificateToPem(cert));
