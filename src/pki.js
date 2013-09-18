@@ -65,3 +65,50 @@ module.exports.createCertificate = function createCertificate(id, cn, email, pub
 
   return cert;
 };
+
+module.exports.createCACertificate = function createCACertificate(subject, key, validityStart, validityEnd, serial, sha256) {
+  var cert = pki.createCertificate();
+  cert.setSubject(subject);
+  cert.setIssuer(subject);
+  cert.publicKey = key.publicKey;
+  cert.serialNumber = serial;
+  cert.validity.notBefore = validityStart;
+  cert.validity.notAfter = validityEnd;
+  cert.setExtensions([{ name: 'basicConstraints', cA: true, pathlen: 0 },
+    { name: 'keyUsage', keyCertSign: 'true', cRLSign: 'true' },
+    { name: 'subjectKeyIdentifier' }]);
+
+  if (sha256) {
+    cert.sign(key.privateKey, forge.md.sha256.create());
+  } else {
+    cert.sign(key.privateKey);
+  }
+
+  return cert;
+};
+
+module.exports.createServerCertificate = function createServerCertificate(subject, caSubject, ip, key, caKey, validityStart, validityEnd, serial, sha256) {
+  var cert = pki.createCertificate();
+  cert.setSubject(subject);
+  cert.setIssuer(caSubject);
+  cert.publicKey = key.publicKey;
+  cert.serialNumber = serial;
+  cert.validity.notBefore = validityStart;
+  cert.validity.notAfter = validityEnd;
+  cert.setExtensions([{ name: 'basicConstraints', cA: false },
+    { name: 'keyUsage', digitalSignature: 'true', keyEncipherment: 'true' },
+    { name: 'extKeyUsage', serverAuth: 'true' },
+    { name: 'nsCertType', server: true },
+    { name: 'subjectAltName', critical: true, altNames: [
+      { type: 7, value: ip }
+    ]},
+    { name: 'subjectKeyIdentifier' }]);
+
+  if (sha256) {
+    cert.sign(caKey.privateKey, forge.md.sha256.create());
+  } else {
+    cert.sign(caKey.privateKey);
+  }
+
+  return cert;
+};
