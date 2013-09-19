@@ -47,8 +47,8 @@ module.exports.createCertificate = function createCertificate(id, cn, email, pub
   cert.serialNumber = serial;
   cert.validity.notBefore = cfg.getValidityStart();
   cert.validity.notAfter = cfg.getValidityEnd();
-  cert.setExtensions([{ name: 'basicConstraints', cA: false },
-    { name: 'keyUsage', digitalSignature: 'true', },
+  cert.setExtensions([{ name: 'basicConstraints', cA: false},
+    { name: 'keyUsage', digitalSignature: true, },
     { name: 'extKeyUsage', clientAuth: true, emailProtection: true },
     { name: 'subjectAltName', critical: true, altNames: [
       { type: 6, value: cfg.getIdUri(id) },
@@ -74,8 +74,8 @@ module.exports.createCACertificate = function createCACertificate(subject, key, 
   cert.serialNumber = serial;
   cert.validity.notBefore = validityStart;
   cert.validity.notAfter = validityEnd;
-  cert.setExtensions([{ name: 'basicConstraints', cA: true, pathlen: 0 },
-    { name: 'keyUsage', keyCertSign: 'true', cRLSign: 'true' },
+  cert.setExtensions([{ name: 'basicConstraints', cA: true, pathLenConstraint: 0 },
+    { name: 'keyUsage', keyCertSign: true, cRLSign: true },
     { name: 'subjectKeyIdentifier' }]);
 
   if (sha256) {
@@ -96,11 +96,11 @@ module.exports.createServerCertificate = function createServerCertificate(subjec
   cert.validity.notBefore = validityStart;
   cert.validity.notAfter = validityEnd;
   cert.setExtensions([{ name: 'basicConstraints', cA: false },
-    { name: 'keyUsage', digitalSignature: 'true', keyEncipherment: 'true' },
-    { name: 'extKeyUsage', serverAuth: 'true' },
+    { name: 'keyUsage', digitalSignature: true, keyEncipherment: true },
+    { name: 'extKeyUsage', serverAuth: true },
     { name: 'nsCertType', server: true },
     { name: 'subjectAltName', critical: true, altNames: [
-      { type: 7, value: ip }
+      { type: 7, ip: ip }
     ]},
     { name: 'subjectKeyIdentifier' }]);
 
