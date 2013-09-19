@@ -54,15 +54,21 @@ var _notFound = function _notFound(req, res, next) {
   return _error(req, res, next, 404, 'Page not found!');
 };
 
+var _mainPage = function _mainPage(req, res) {
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+
+  res.render('index.html', { title: cfg.get('pageTitle') + 'Main Page' });
+};
+
 var _profile = function _profile (req, res) {
   res.statusCode = 200;
   res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 
-  res.render('index.html', { title: cfg.get('pageTitle') + 'Profile', parsedProfile: req.session.parsedProfile });
+  res.render('profile.html', { title: cfg.get('pageTitle') + 'Profile', parsedProfile: req.session.parsedProfile });
 };
 
 var _id = function _id(req, res, next) {
-
   store.getId(req.url.substr(1), function _gotId(content) {
     if (content.length === 0) {
       _notFound(req, res, next);
@@ -159,6 +165,7 @@ sslApp.use('/id', _id);
 sslApp.use('/profile', _doLogin);
 sslApp.use('/profile', _profile);
 
+sslApp.use('/', _mainPage);
 sslApp.use(_notFound);
 
 https.createServer(serverOptions, sslApp).listen(cfg.get('server:port'));
