@@ -47,7 +47,7 @@ var _error = function _error (req, res, next, code, error) {
   res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 
   error = (typeof error === 'undefined') ?  'Something bad happened...' : error;
-  res.render('error.html', { title: cfg.get('pageTitle') + 'Error! ' + error, error: error });
+  res.render('error.html', { title: cfg.get('pageTitle') + 'Error! ' + error, debugMode: cfg.get('debugMode'),  error: error });
 };
 
 var _notFound = function _notFound(req, res, next) {
@@ -58,14 +58,14 @@ var _mainPage = function _mainPage(req, res) {
   res.statusCode = 200;
   res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 
-  res.render('index.html', { title: cfg.get('pageTitle') + 'Main Page' });
+  res.render('index.html', { title: cfg.get('pageTitle') + 'Main Page', debugMode: cfg.get('debugMode') });
 };
 
 var _profile = function _profile (req, res) {
   res.statusCode = 200;
   res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 
-  res.render('profile.html', { title: cfg.get('pageTitle') + 'Profile', parsedProfile: req.session.parsedProfile });
+  res.render('profile.html', { title: cfg.get('pageTitle') + 'Profile', debugMode: cfg.get('debugMode'), parsedProfile: req.session.parsedProfile });
 };
 
 var _id = function _id(req, res, next) {
@@ -157,7 +157,7 @@ sslApp.use(connect.logger(cfg.get('server:logformat')));
 sslApp.use(connect.cookieParser());
 sslApp.use(connect.session({ key: 'session', secret: crypto.randomBytes(32).toString() }));
 
-if (cfg.get('server:directoryListings')) { sslApp.use('/static', connect.directory('static')); }
+if (cfg.get('debugMode')) { sslApp.use('/static', connect.directory('static')); }
 sslApp.use('/static', connect.static('static'));
 
 sslApp.use('/id', _id);

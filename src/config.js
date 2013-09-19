@@ -33,7 +33,6 @@ cfg.defaults({
     'key': 'config/server.key',
     'cert': 'config/server.crt',
     'logformat': 'default',
-    'directoryListings': false,
     'cacheTemplates': true
   },
   'ca': {
@@ -54,7 +53,8 @@ cfg.defaults({
     'validityStart': DEFAULT_VALIDITY_START,
     'validityEnd': DEFAULT_VALIDITY_END
   },
-  'pageTitle': 'WebIDP --- '
+  'pageTitle': 'WebIDP --- ',
+  'debugMode': false
 });
 
 module.exports.get = function get(key) {

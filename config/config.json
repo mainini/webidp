@@ -1,8 +1,7 @@
 {
   "server": {
     "logformat": "dev",
-    "cacheTemplates": false,
-    "directoryListings": true
+    "cacheTemplates": false
   },
   "db": {
     "enabled": false,
@@ -13,5 +12,6 @@
       "countryName": "CH",
       "organizationName": "Berne University of Applied Sciences"
     }
-  }
+  },
+  "debugMode": true
 }

@@ -23,14 +23,21 @@
   <link rel="apple-touch-icon" sizes="72x72" href="/static/images/apple-touch-icon-72x72.png">
   <link rel="apple-touch-icon" sizes="114x114" href="/static/images/apple-touch-icon-114x114.png">
 
+  <link rel="stylesheet" href="/static/stylesheets/webidp.css">
 </head>
 <body>
 
   <div class="container">
 
-    <div class="sixteen columns">
+    <div class="nine columns">
       <h3 id="logo">WebIDP</h3>
     </div>
+    <div class="three columns">
+      <% if (debugMode) { %>
+      <strong class="warning">DEBUG MODE ENABLED</strong>
+      <% } %>
+    </div>
+
     <div class="sixteen columns">
       <h4>An error has occured!</h4>
     </div>
