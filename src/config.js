@@ -62,7 +62,7 @@ module.exports.get = function get(key) {
 };
 
 var getIdUri = function getIdUri(id) {
-  return 'https://' + cfg.get('server:fqdn') + ':' + cfg.get('server:port') + '/id/' + id;
+  return 'https://' + cfg.get('server:fqdn') + ':' + cfg.get('server:port') + '/id/' + id + '#id';
 };
 module.exports.getIdUri = getIdUri;
 
