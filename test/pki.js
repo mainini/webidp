@@ -29,8 +29,8 @@ var caSubject = [{ name: 'organizationName', value: 'Berne University of Applied
                { name: 'commonName', value: 'BFH WebID CA' }];
 var caCert = pki.createCACertificate(caSubject, caKeys, '0', true);
 
-fs.writeFile('ca-cert.pem', forge.pki.certificateToPem(caCert));
-fs.writeFile('ca-key.pem', forge.pki.privateKeyToPem(caKeys.privateKey));
+fs.writeFileSync('certs/ca-cert.pem', forge.pki.certificateToPem(caCert));
+fs.writeFileSync('certs/ca-key.pem', forge.pki.privateKeyToPem(caKeys.privateKey));
 
 
 // Generate and save server-certificate
@@ -41,14 +41,26 @@ var serverSubject = [{ name: 'organizationName', value: 'Berne University of App
                { name: 'commonName', value: 'localhost' }];
 var serverCert = pki.createServerCertificate(serverSubject, '127.0.0.1', serverKeys, '1', caCert, caKeys, true);
 
-fs.writeFile('server-cert.pem', forge.pki.certificateToPem(serverCert));
-fs.writeFile('server-key.pem', forge.pki.privateKeyToPem(serverKeys.privateKey));
+fs.writeFileSync('certs/server-cert.pem', forge.pki.certificateToPem(serverCert));
+fs.writeFileSync('certs/server-key.pem', forge.pki.privateKeyToPem(serverKeys.privateKey));
 
 
 // Generate and save WebID-certificate
+var id='test';
+var name='Justus Testus';
+var email='justus.testus@bfh.ch';
 
 var webidKeys = forge.pki.rsa.generateKeyPair(2048);
 var webidCert = pki.createWebIDCertificate('test', 'Justus Testus', 'justus.testus@bfh.ch', webidKeys, '2', caCert, caKeys, true);
 
-fs.writeFile('webid-cert.pem', forge.pki.certificateToPem(webidCert));
-fs.writeFile('webid-key.pem', forge.pki.privateKeyToPem(webidKeys.privateKey));
+fs.writeFileSync('certs/webid-cert.pem', forge.pki.certificateToPem(webidCert));
+fs.writeFileSync('certs/webid-key.pem', forge.pki.privateKeyToPem(webidKeys.privateKey));
+
+var bytes = forge.asn1.toDer(forge.pkcs12.toPkcs12Asn1(
+              webidKeys.privateKey, [webidCert], null,
+              {generateLocalKeyId: true, friendlyName: 'test'})).getBytes();
+fs.writeFileSync('certs/webid-cert.p12', bytes,  {encoding: 'binary'});
+
+var webidData = 'id:       ' + id + '\nname:     ' + name + '\nemail:    ' + email + '\n' +
+                'modulus:  ' + webidKeys.publicKey.n.toString(16) + '\nexponent: ' + webidKeys.publicKey.e.toString() + '\n';
+fs.writeFileSync('certs/webid-infos.txt', webidData);
