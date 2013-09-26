@@ -30,14 +30,14 @@ cfg.defaults({
   'server': {
     'fqdn': 'localhost',
     'port': 8443,
-    'key': 'config/server.key',
-    'cert': 'config/server.crt',
+    'cert': 'config/server-cert.pem',
+    'key': 'config/server-key.pem',
     'logformat': 'default',
     'cacheTemplates': true
   },
   'ca': {
-    'cert': 'config/ca.crt',
-    'key': 'config/ca.key'
+    'cert': 'config/ca-cert.pem',
+    'key': 'config/ca-key.pem'
   },
   'db': {
     'enabled': true,
@@ -49,7 +49,7 @@ cfg.defaults({
   'webid': {
     'subject': {},
     'sha256': true,
-    'fragment': 'me',
+    'fragment': 'id',
     'validityStart': DEFAULT_VALIDITY_START,
     'validityEnd': DEFAULT_VALIDITY_END
   },
@@ -62,7 +62,7 @@ module.exports.get = function get(key) {
 };
 
 var getIdUri = function getIdUri(id) {
-  return 'https://' + cfg.get('server:fqdn') + ':' + cfg.get('server:port') + '/id/' + id + '#id';
+  return 'https://' + cfg.get('server:fqdn') + ':' + cfg.get('server:port') + '/id/' + id;
 };
 module.exports.getIdUri = getIdUri;
 

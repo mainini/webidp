@@ -68,7 +68,7 @@ module.exports.createServerCertificate = function createServerCertificate(subjec
   cert.publicKey = keys.publicKey;
   cert.serialNumber = serial;
   cert.validity.notBefore = cfg.getValidityStart();
-  cert.validity.notAfter = cfg.getValidityStart();
+  cert.validity.notAfter = cfg.getValidityEnd();
   cert.setExtensions([{ name: 'basicConstraints', cA: false },
     { name: 'keyUsage', digitalSignature: true, keyEncipherment: true },
     { name: 'extKeyUsage', serverAuth: true },
@@ -113,7 +113,7 @@ module.exports.createWebIDCertificate = function createWebIDCertificate(id, cn, 
     { name: 'keyUsage', digitalSignature: true, },
     { name: 'extKeyUsage', clientAuth: true, emailProtection: true },
     { name: 'subjectAltName', critical: true, altNames: [
-      { type: 6, value: cfg.getIdUri(id) },
+      { type: 6, value: cfg.getIdUriFull(id) },
       { type: 1, value: email }
     ]},
     { name: 'nsCertType', client: true },
