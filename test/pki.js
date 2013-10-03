@@ -51,7 +51,7 @@ var name='Justus Testus';
 var email='justus.testus@bfh.ch';
 
 var webidKeys = forge.pki.rsa.generateKeyPair(2048);
-var webidCert = pki.createWebIDCertificate('test', 'Justus Testus', 'justus.testus@bfh.ch', webidKeys, '2', caCert, caKeys, true);
+var webidCert = pki.createWebIDCertificate('test', 'Justus Testus', 'justus.testus@bfh.ch', webidKeys, '2', caCert, caKeys, true).cert;
 
 fs.writeFileSync('certs/webid-cert.pem', forge.pki.certificateToPem(webidCert));
 fs.writeFileSync('certs/webid-key.pem', forge.pki.privateKeyToPem(webidKeys.privateKey));
