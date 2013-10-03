@@ -30,7 +30,8 @@ var fs = require('fs'),
   render = require('connect-render'),
   webid = require('webid'),
   cfg = require('./config.js'),
-  triplestore = require('./triplestore.js');
+  triplestore = require('./triplestore.js'),
+  pki = require('./pki.js');
 
 
 ///////////////////// Setup triplestore
@@ -42,30 +43,50 @@ var store = triplestore.TripleStore.getInstance();
  * Function definitions
  **********************************************************/
 
+var _createChallenge = function _createChallenge() {
+  return crypto.randomBytes(32).toString();
+};
+
 var _error = function _error (req, res, next, code, error) {
   res.statusCode = (typeof code === 'undefined') ? 500 : code;
   res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 
   error = (typeof error === 'undefined') ?  'Something bad happened...' : error;
-  res.render('error.html', { title: cfg.get('pageTitle') + 'Error! ' + error, debugMode: cfg.get('debugMode'),  error: error });
+  res.render('error.html', { 'title': cfg.get('pageTitle') + 'Error! ' + error,
+                             'debugMode': cfg.get('debugMode'),
+                             'error': error });
 };
 
 var _notFound = function _notFound(req, res, next) {
   return _error(req, res, next, 404, 'Page not found!');
 };
 
-var _mainPage = function _mainPage(req, res) {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+var _create = function _create(req, res) {
+  if (req.body.spkac) {
+    var cert = pki.createWebIDCertificate('test', 'Justus Testus', 'justus.testus@bfh.ch', req.body.spkac, 2, true);
 
-  res.render('index.html', { title: cfg.get('pageTitle') + 'Main Page', debugMode: cfg.get('debugMode') });
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/x-x509-user-cert');
+    res.write(cert.der);
+    res.end();
+  } else {
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+
+    res.render('create.html', { 'title': cfg.get('pageTitle') + 'Create your WebID!',
+                              'debugMode': cfg.get('debugMode'),
+                              'challenge': _createChallenge() });
+  }
+
 };
 
 var _profile = function _profile (req, res) {
   res.statusCode = 200;
   res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 
-  res.render('profile.html', { title: cfg.get('pageTitle') + 'Profile', debugMode: cfg.get('debugMode'), parsedProfile: req.session.parsedProfile });
+  res.render('profile.html', { 'title': cfg.get('pageTitle') + 'Profile',
+                               'debugMode': cfg.get('debugMode'),
+                               'parsedProfile': req.session.parsedProfile });
 };
 
 var _id = function _id(req, res, next) {
@@ -88,7 +109,8 @@ var _doLogin = function _doLogin (req, res, next) {
   var certificate = req.connection.getPeerCertificate();
   if (_.isEmpty(certificate)) {
 
-    _error(req, res, next, 401, 'Authorisation failed: Certificate not provided!');
+    res.writeHead(307, {'Location':'/create'});
+    res.end();
 
   } else {
 
@@ -154,18 +176,19 @@ var serverOptions = {
 
 var sslApp = connect(render({ root: './views', layout: false, cache: cfg.get('server:cacheTemplates') }));
 sslApp.use(connect.logger(cfg.get('server:logformat')));
+sslApp.use(connect.bodyParser());
 sslApp.use(connect.cookieParser());
-sslApp.use(connect.session({ key: 'session', secret: crypto.randomBytes(32).toString() }));
+sslApp.use(connect.session({ key: 'session', secret: _createChallenge()}));
 
 if (cfg.get('debugMode')) { sslApp.use('/static', connect.directory('static')); }
 sslApp.use('/static', connect.static('static'));
 
-sslApp.use('/id', _id);
+sslApp.use('/id', _id);             // @todo Content-negotiation if retrieved by human
+sslApp.use('/create', _create);     // @todo check if user already has a WebID...
 
-sslApp.use('/profile', _doLogin);
-sslApp.use('/profile', _profile);
+sslApp.use('/', _doLogin);
+sslApp.use('/', _profile);
 
-sslApp.use('/', _mainPage);
 sslApp.use(_notFound);
 
 https.createServer(serverOptions, sslApp).listen(cfg.get('server:port'));
