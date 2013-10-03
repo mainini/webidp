@@ -31,6 +31,13 @@ var pki = forge.pki;
  * Function definitions
  **********************************************************/
 
+var spkacToPublicKey = function spkacToPublicKey(spkac) {
+  // @todo use a validator instead and maybe verify challenge+signature (+integration into forge...)
+  var asn1 = forge.asn1.fromDer(forge.util.decode64(spkac));
+  return forge.pki.publicKeyFromAsn1(asn1.value[0].value[0]);
+};
+module.exports.spkacToPublicKey = spkacToPublicKey;
+
 module.exports.createCACertificate = function createCACertificate(subject, keys, serial, sha256) {
   var cert = pki.createCertificate();
   cert.setSubject(subject);
@@ -97,6 +104,14 @@ module.exports.createWebIDCertificate = function createWebIDCertificate(id, cn, 
     signingKey = caKeys.privateKey;
   }
 
+  var publicKey;
+  if (! keys.publicKey) {
+    // not a forge-keypair, trying to parse it from SPKAC instead
+    publicKey = spkacToPublicKey(keys);
+  } else {
+    publicKey = keys.publicKey;
+  }
+
   var subject = [{'name': 'commonName', 'value': cn}];
   for (var k in cfg.get('webid:subject')) {
     subject.push({'name': k, 'value': cfg.get('webid:subject')[k]});
@@ -105,7 +120,7 @@ module.exports.createWebIDCertificate = function createWebIDCertificate(id, cn, 
   var cert = pki.createCertificate();
   cert.setSubject(subject);
   cert.setIssuer(caCert.subject.attributes);
-  cert.publicKey = keys.publicKey;
+  cert.publicKey = publicKey;
   cert.serialNumber = serial;
   cert.validity.notBefore = cfg.getValidityStart();
   cert.validity.notAfter = cfg.getValidityEnd();
@@ -125,5 +140,8 @@ module.exports.createWebIDCertificate = function createWebIDCertificate(id, cn, 
     cert.sign(signingKey);
   }
 
-  return cert;
+  return {
+    'cert': cert,
+    'der':  new Buffer(forge.asn1.toDer(forge.pki.certificateToAsn1(cert)).getBytes(), 'binary')
+  };
 };
