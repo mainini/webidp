@@ -38,12 +38,18 @@ var spkacToPublicKey = function spkacToPublicKey(spkac) {
 };
 module.exports.spkacToPublicKey = spkacToPublicKey;
 
+var serialToHex = function serialToHex(serial) {
+  // see https://tools.ietf.org/html/rfc5280#section-4.1.2.2 for length
+  return String('00000000000000000000' + serial).slice(-20);
+};
+module.exports.serialToHex = serialToHex;
+
 module.exports.createCACertificate = function createCACertificate(subject, keys, serial, sha256) {
   var cert = pki.createCertificate();
   cert.setSubject(subject);
   cert.setIssuer(subject);
   cert.publicKey = keys.publicKey;
-  cert.serialNumber = serial;
+  cert.serialNumber = serialToHex(serial);
   cert.validity.notBefore = cfg.getValidityStart();
   cert.validity.notAfter = cfg.getValidityEnd();
   cert.setExtensions([{ name: 'basicConstraints', cA: true, pathLenConstraint: 0 },
@@ -73,7 +79,7 @@ module.exports.createServerCertificate = function createServerCertificate(subjec
   cert.setSubject(subject);
   cert.setIssuer(caCert.subject.attributes);
   cert.publicKey = keys.publicKey;
-  cert.serialNumber = serial;
+  cert.serialNumber = serialToHex(serial);
   cert.validity.notBefore = cfg.getValidityStart();
   cert.validity.notAfter = cfg.getValidityEnd();
   cert.setExtensions([{ name: 'basicConstraints', cA: false },
@@ -121,7 +127,7 @@ module.exports.createWebIDCertificate = function createWebIDCertificate(id, cn, 
   cert.setSubject(subject);
   cert.setIssuer(caCert.subject.attributes);
   cert.publicKey = publicKey;
-  cert.serialNumber = serial;
+  cert.serialNumber = serialToHex(serial);
   cert.validity.notBefore = cfg.getValidityStart();
   cert.validity.notAfter = cfg.getValidityEnd();
   cert.setExtensions([{ name: 'basicConstraints', cA: false},

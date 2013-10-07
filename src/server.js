@@ -63,7 +63,7 @@ var _notFound = function _notFound(req, res, next) {
 
 var _create = function _create(req, res) {
   if (req.body.spkac) {
-    var cert = pki.createWebIDCertificate('test', 'Justus Testus', 'justus.testus@bfh.ch', req.body.spkac, 2, true);
+    var cert = pki.createWebIDCertificate('test', 'Justus Testus', 'justus.testus@bfh.ch', req.body.spkac, 1, true);
 
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/x-x509-user-cert');
