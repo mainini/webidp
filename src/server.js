@@ -63,8 +63,13 @@ var _notFound = function _notFound(req, res, next) {
 
 var _create = function _create(req, res) {
   if (req.body.spkac) {
-    var cert = pki.createWebIDCertificate('test', 'Justus Testus', 'justus.testus@bfh.ch', req.body.spkac, 1, true);
+    var id = 'test';
+    var name = 'Justus Testus';
+    var email = 'justus.testus@bfh.ch';
 
+    var cert = pki.createWebIDCertificate(id, name, email, req.body.spkac, store.getNextSerialNumber(), true);
+    store.addId(id, name, 'Testlabel', cert.cert.publicKey.n.toString(16), cert.cert.publicKey.e.toString());
+ 
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/x-x509-user-cert');
     res.write(cert.der);
