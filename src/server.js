@@ -198,11 +198,12 @@ var serverOptions = {
   rejectUnauthorized: false
 };
 
-var sslApp = connect(render({ root: './views', layout: false, cache: cfg.get('server:cacheTemplates') }));
+var sslApp = connect();
 sslApp.use(connect.logger(cfg.get('server:logformat')));
 sslApp.use(connect.bodyParser());
 sslApp.use(connect.cookieParser());
 sslApp.use(connect.session({ key: 'session', secret: _createChallenge()}));
+sslApp.use(render({ root: './views', layout: false, cache: cfg.get('server:cacheTemplates') }));
 
 if (cfg.get('debugMode')) {
   sslApp.use('/static', connect.directory('static'));
