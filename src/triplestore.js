@@ -35,6 +35,25 @@ exports.TripleStore = (function() {
 
   function PrivateConstructor() {
 
+    this.query = function query(sparqlQuery) {
+      var result;
+      this.store.execute(sparqlQuery, function querySuccess(success, results) {
+        if (success) {
+          if (sparqlQuery.match(/SELECT/i)) {
+            for(var i = 0; i < results.length; i++) {
+              var bindings = results[i];
+              result += bindings.s.value + ' ' + bindings.p.value +  ' ' + bindings.o.value + '\n';
+            }
+          } else {
+            result = results.toNT();
+          }
+        } else {
+          result = 'An error occured while executing the query!\n\n' + results.toString();
+        }
+      });
+      return result;
+    };
+
     this.addId = function addId(id, name, label, modulus, exponent) {
       var jsonld = {
         '@context': {

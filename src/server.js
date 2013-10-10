@@ -106,6 +106,21 @@ var _id = function _id(req, res, next) {
   });
 };
 
+var _sparql = function _sparql (req, res) {
+  var result;
+  if (req.body.query) {
+    result = store.query(req.body.query);
+  }
+
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+
+  res.render('sparql.html', { 'title': cfg.get('pageTitle') + 'SPARQL Console',
+                              'result': result,
+                              'debugMode': cfg.get('debugMode') });
+};
+
+
 var _doLogin = function _doLogin (req, res, next) {
   if (req.session.identified) {
     return next();
@@ -185,7 +200,11 @@ sslApp.use(connect.bodyParser());
 sslApp.use(connect.cookieParser());
 sslApp.use(connect.session({ key: 'session', secret: _createChallenge()}));
 
-if (cfg.get('debugMode')) { sslApp.use('/static', connect.directory('static')); }
+if (cfg.get('debugMode')) {
+  sslApp.use('/static', connect.directory('static'));
+  sslApp.use('/sparql', _sparql);
+}
+
 sslApp.use('/static', connect.static('static'));
 
 sslApp.use('/id', _id);             // @todo Content-negotiation if retrieved by human

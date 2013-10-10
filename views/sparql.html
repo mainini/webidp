@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="ie ie6" lang="en"> <![endif]-->
+<!--[if IE 7 ]><html class="ie ie7" lang="en"> <![endif]-->
+<!--[if IE 8 ]><html class="ie ie8" lang="en"> <![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!--><html lang="en"> <!--<![endif]-->
+<head>
+  <% // based on https://github.com/dhg/Skeleton.git, 7ab682091d1032035cfcb668e6bd4b465bfa4679 %>
+  <meta charset="utf-8">
+
+  <title><%= title %></title>
+  <meta name="description" content="WebIDP - Identity provider for WebID">
+  <meta name="author" content="Berne University of Applied Sciences (BUAS) -- http://bfh.ch">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <link rel="stylesheet" href="/static/stylesheets/base.css">
+  <link rel="stylesheet" href="/static/stylesheets/skeleton.css">
+  <link rel="stylesheet" href="/static/stylesheets/layout.css">
+  <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <link rel="shortcut icon" href="/static/images/favicon.ico">
+  <link rel="apple-touch-icon" href="/static/images/apple-touch-icon.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/static/images/apple-touch-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/static/images/apple-touch-icon-114x114.png">
+
+  <link rel="stylesheet" href="/static/stylesheets/webidp.css">
+</head>
+<body>
+
+  <div class="container">
+
+    <div class="nine columns">
+      <h3 id="logo">WebIDP</h3>
+    </div>
+    <div class="three columns">
+      <% if (debugMode) { %>
+      <strong class="warning">DEBUG MODE ENABLED</strong>
+      <% } %>
+    </div>
+
+    <div class="sixteen columns">
+      <h4>SPARQL Console</h4>
+    </div>
+
+    <div class="sixteen columns">
+      <form method="post" action="/sparql">
+        <label for="query">SPARQL query</label>
+        <textarea class="sparqlarea" rows="5" name="query">CONSTRUCT { ?s ?p ?o } WHERE { GRAPH <https://localhost:8443/id/test> { ?s ?p ?o } }</textarea>
+        <p>Note: when using SELECT-query, only ?s, ?p and ?o will be returned in the result!</p>
+        <input type="submit" name="submit" value="Submit!">
+      </form>
+    </div>
+
+    <% if (result) { %>
+      <div class="sixteen columns">
+        <form>
+          <label for="result">Result</label>
+          <textarea class="sparqlarea" rows="20" name="result"><%= result %></textarea>
+        </form>
+      </div>
+    <% } %>
+
+  </div>
+
+</body>
+</html>
