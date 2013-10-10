@@ -67,7 +67,7 @@ var _create = function _create(req, res) {
     var name = 'Justus Testus';
     var email = 'justus.testus@bfh.ch';
 
-    var cert = pki.createWebIDCertificate(id, name, email, req.body.spkac, store.getNextSerialNumber(), true);
+    var cert = pki.createWebIDCertificate(id, name, email, req.body.spkac, store.getNextSerialNumber(), cfg.get('webid:sha256'));
     store.addId(id, name, 'Testlabel', cert.cert.publicKey.n.toString(16), cert.cert.publicKey.e.toString());
  
     res.statusCode = 200;
