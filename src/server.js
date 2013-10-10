@@ -68,7 +68,7 @@ var _create = function _create(req, res) {
     var email = 'justus.testus@bfh.ch';
 
     var id = { 'uri': cfg.getIdUri(uid),
-               'hash': pki.hashId(req.body.id) };
+               'hash': pki.hashId(req.body.id) };     // @todo check if given id already exists!
     id.full = id.uri + '#' + id.hash;
 
     var cert = pki.createWebIDCertificate(id.full, name, email, req.body.spkac, store.getNextSerialNumber(), cfg.get('webid:sha256'));
