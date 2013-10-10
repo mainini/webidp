@@ -71,7 +71,7 @@ exports.TripleStore = (function() {
           }
         },
 
-        '@id': cfg.getIdUriFull(id),
+        '@id': id.full,
         '@type': 'foaf:Person',
         'foaf:name': name,
         'cert:key': {
@@ -82,7 +82,7 @@ exports.TripleStore = (function() {
         }
       };
 
-      this.store.load('application/ld+json', jsonld, cfg.getIdUri(id), function _storeLoad(success, results) {});
+      this.store.load('application/ld+json', jsonld, id.uri, function _storeLoad(success, results) {});
     };
 
     this.getId = function getId(id, callback) {

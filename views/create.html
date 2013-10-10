@@ -6,8 +6,13 @@
 
     <div class="sixteen columns">
       <form method="post" action="/create">
+        <label for="label">Identifier for the WebID</label>
+        A simple name for remembering the usage of each of your WebIDs, like "My Firefox-ID", "My mobile ID" etc.<br> 
+        <em>Note: the identifier is publicly visible!</em>
+        <input type="text" name="id" required>
+        <label for="spkac">Key generator options</label>
         <keygen name="spkac" challenge="<%= challenge %>" keytype="RSA">
-        <input type="submit" name="createcert" value="generate">
+        <input type="submit" name="createcert" value="Create!">
       </form>
     </div>
 

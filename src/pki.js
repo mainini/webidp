@@ -44,6 +44,12 @@ var serialToHex = function serialToHex(serial) {
 };
 module.exports.serialToHex = serialToHex;
 
+module.exports.hashId = function hashId(id) {
+  var md = forge.md.sha256.create();
+  md.update(id);
+  return  md.digest().toHex();
+};
+
 module.exports.createCACertificate = function createCACertificate(subject, keys, serial, sha256) {
   var cert = pki.createCertificate();
   cert.setSubject(subject);
@@ -134,7 +140,7 @@ module.exports.createWebIDCertificate = function createWebIDCertificate(id, cn, 
     { name: 'keyUsage', digitalSignature: true, },
     { name: 'extKeyUsage', clientAuth: true, emailProtection: true },
     { name: 'subjectAltName', critical: true, altNames: [
-      { type: 6, value: cfg.getIdUriFull(id) },
+      { type: 6, value: id },
       { type: 1, value: email }
     ]},
     { name: 'nsCertType', client: true },

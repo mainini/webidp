@@ -63,12 +63,16 @@ var _notFound = function _notFound(req, res, next) {
 
 var _create = function _create(req, res) {
   if (req.body.spkac) {
-    var id = 'test';
+    var uid = 'test';
     var name = 'Justus Testus';
     var email = 'justus.testus@bfh.ch';
 
-    var cert = pki.createWebIDCertificate(id, name, email, req.body.spkac, store.getNextSerialNumber(), cfg.get('webid:sha256'));
-    store.addId(id, name, 'Testlabel', cert.cert.publicKey.n.toString(16), cert.cert.publicKey.e.toString());
+    var id = { 'uri': cfg.getIdUri(uid),
+               'hash': pki.hashId(req.body.id) };
+    id.full = id.uri + '#' + id.hash;
+
+    var cert = pki.createWebIDCertificate(id.full, name, email, req.body.spkac, store.getNextSerialNumber(), cfg.get('webid:sha256'));
+    store.addId(id, name, req.body.id, cert.cert.publicKey.n.toString(16), cert.cert.publicKey.e.toString());
  
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/x-x509-user-cert');
