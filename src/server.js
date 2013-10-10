@@ -75,7 +75,7 @@ var _create = function _create(req, res) {
     store.addId(id, name, req.body.id, cert.cert.publicKey.n.toString(16), cert.cert.publicKey.e.toString());
  
     res.statusCode = 200;
-    res.setHeader('Content-Type', 'application/x-x509-user-cert');
+    res.setHeader('Content-Type', 'application/x-x509-user-cert');    // @todo redirect user after creation
     res.write(cert.der);
     res.end();
   } else {
