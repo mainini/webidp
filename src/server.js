@@ -94,8 +94,8 @@ var _profile = function _profile (req, res) {
   res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 
   res.render('profile.html', { 'title': cfg.get('pageTitle') + 'Profile',
-                               'debugMode': cfg.get('debugMode'),
-                               'parsedProfile': req.session.parsedProfile });
+                             'debugMode': cfg.get('debugMode'),
+                             'webId': req.session.webId });
 };
 
 var _id = function _id(req, res, next) {
@@ -126,16 +126,13 @@ var _sparql = function _sparql (req, res) {
 
 
 var _doLogin = function _doLogin (req, res, next) {
-  if (req.session.identified) {
-    return next();
+  if (req.session.webId) {
+    next();
   }
 
   var certificate = req.connection.getPeerCertificate();
   if (_.isEmpty(certificate)) {
-
-    res.writeHead(307, {'Location':'/create'});
-    res.end();
-
+    next();
   } else {
 
     if (!req.connection.authorized) {
@@ -147,9 +144,7 @@ var _doLogin = function _doLogin (req, res, next) {
       new webid.VerificationAgent(certificate).verify(function _verifySuccess (result) {
         // WebID-verification was successful!
 
-        req.session.profile = result;
-        req.session.parsedProfile = new webid.Foaf(result).parse();
-        req.session.identified = true;
+        req.session.webId = new webid.Foaf(result).parse();
         next();
 
       }, function _verifyError(result) {
@@ -211,12 +206,15 @@ if (cfg.get('debugMode')) {
 }
 
 sslApp.use('/static', connect.static('static'));
-
 sslApp.use('/id', _id);             // @todo Content-negotiation if retrieved by human
+
+// Everything below is authenticated!
+sslApp.use('/', _doLogin);
+
 sslApp.use('/create', _create);     // @todo check if user already has a WebID...
 
-sslApp.use('/', _doLogin);
 sslApp.use('/', _profile);
+sslApp.use('/profile', _profile);
 
 sslApp.use(_notFound);
 

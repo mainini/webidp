@@ -1,11 +1,25 @@
 <% include views/head.html %>
 
+  <% if (webId) { %>
+
     <div class="sixteen columns">
       <h4>Welcome to your profile</h4>
     </div>
 
     <div class="sixteen columns">
-    Welcome back, <%= parsedProfile.name %>! You have successfully authenticated using your WebID <%= parsedProfile.webid %>.
+    Welcome back, <%= webId.name %>! You have successfully authenticated using your WebID <%= webId.webid %>.
     </div>
+
+  <% } else { %>
+
+    <div class="sixteen columns">
+      <h4>Authentication failed!</h4>
+    </div>
+
+    <div class="sixteen columns">
+    You cannot access your profile without a valid WebID! Do you want to <a href="/create">create one</a>?
+    </div>
+
+  <% } %>
 
 <% include views/foot.html %>
