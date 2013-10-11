@@ -32,7 +32,7 @@ var pki = forge.pki;
  **********************************************************/
 
 var spkacToPublicKey = function spkacToPublicKey(spkac) {
-  // @todo use a validator instead and maybe verify challenge+signature (+integration into forge...)
+  // @todo maybe use a validator instead (eventually integrate into forge) and maybe verify signature
   var asn1 = forge.asn1.fromDer(forge.util.decode64(spkac));
   return forge.pki.publicKeyFromAsn1(asn1.value[0].value[0]);
 };

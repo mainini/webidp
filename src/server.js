@@ -72,6 +72,7 @@ var _create = function _create(req, res) {
                'hash': crypto.hashId(req.body.id) };     // @todo check if given id already exists!
     id.full = id.uri + '#' + id.hash;
 
+    // @todo check challenge
     var cert = crypto.createWebIDCertificate(id.full, name, email, req.body.spkac, store.getNextSerialNumber(), cfg.get('webid:sha256'));
     store.addId(id, name, req.body.id, cert.cert.publicKey.n.toString(16), cert.cert.publicKey.e.toString());
  
@@ -223,7 +224,7 @@ sslApp.use('/id', _id);             // @todo Content-negotiation if retrieved by
 // Everything below is authenticated!
 sslApp.use('/', _doLogin);
 
-sslApp.use('/create', _create);     // @todo check if user already has a WebID...
+sslApp.use('/create', _create);
 
 sslApp.use('/profile', _profile);
 sslApp.use('/', _profile);
