@@ -44,8 +44,12 @@ exports.TripleStore = (function() {
               var bindings = results[i];
               result += bindings.s.value + ' ' + bindings.p.value +  ' ' + bindings.o.value + '\n';
             }
-          } else {
+          } else if (sparqlQuery.match(/CONSTRUCT/i)) {
             result = results.toNT();
+          } else {
+            if (results) {
+              result = results.toString();
+            }
           }
         } else {
           result = 'An error occured while executing the query!\n\n' + results.toString();
