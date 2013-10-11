@@ -1,6 +1,8 @@
 <% include views/head.html %>
 
-   <div class="sixteen columns">
+  <% if (user) { %>
+
+    <div class="sixteen columns">
       <h4>Create your WebID!</h4>
     </div>
 
@@ -15,5 +17,31 @@
         <input type="submit" name="createcert" value="Create!">
       </form>
     </div>
+
+  <% } else if (webId) { %>
+
+    <div class="sixteen columns">
+      <h4>Already logged in!</h4><br>
+      You are already logged in with your WebID! Check out your <a href="/profile">profile</a>!
+    </div>
+
+  <% } else { %>
+
+    <div class="sixteen columns">
+      <h4>Account login</h4><br>
+      You need to login using your <%= accountDescription %> prior to creating a WebID.
+    </div>
+
+    <div class="sixteen columns">
+      <form method="post" action="/create">
+        <label for="uid">User-ID</label>
+        <input type="text" name="uid" required>
+        <label for="password">Password</label>
+        <input type="password" name="password" required>
+        <input type="submit" name="login" value="Login!">
+      </form>
+    </div>
+
+  <% } %>
 
 <% include views/foot.html %>

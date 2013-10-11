@@ -13,5 +13,6 @@
       "organizationName": "Berne University of Applied Sciences"
     }
   },
+  "accountDescription": "BUAS LDAP login",
   "debugMode": true
 }

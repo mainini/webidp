@@ -63,9 +63,10 @@ var _notFound = function _notFound(req, res, next) {
 
 var _create = function _create(req, res) {
   if (req.body.spkac) {
-    var uid = 'test';
-    var name = 'Justus Testus';
-    var email = 'justus.testus@bfh.ch';
+
+    var uid = req.session.user.uid;
+    var name = req.session.user.name;
+    var email = req.session.user.email;
 
     var id = { 'uri': cfg.getIdUri(uid),
                'hash': pki.hashId(req.body.id) };     // @todo check if given id already exists!
@@ -78,13 +79,24 @@ var _create = function _create(req, res) {
     res.setHeader('Content-Type', 'application/x-x509-user-cert');    // @todo redirect user after creation
     res.write(cert.der);
     res.end();
+
   } else {
+
+    if (req.body.uid) {
+      req.session.user = { uid: req.body.uid,
+                           name: 'Justus Testus',
+                           email: 'justus.testus@bfh.ch' };
+    }
+
     res.statusCode = 200;
     res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 
     res.render('create.html', { 'title': cfg.get('pageTitle') + 'Create your WebID!',
                               'debugMode': cfg.get('debugMode'),
-                              'challenge': _createChallenge() });
+                              'challenge': _createChallenge(),
+                              'user': req.session.user,
+                              'webId': req.session.webId,
+                              'accountDescription': cfg.get('accountDescription') });
   }
 
 };
@@ -128,49 +140,49 @@ var _sparql = function _sparql (req, res) {
 var _doLogin = function _doLogin (req, res, next) {
   if (req.session.webId) {
     next();
-  }
-
-  var certificate = req.connection.getPeerCertificate();
-  if (_.isEmpty(certificate)) {
-    next();
   } else {
 
-    if (!req.connection.authorized) {
-
-      _error(req, res, next, 401, 'Authorisation failed: Certificate signed by unknown authority!');
-
+    var certificate = req.connection.getPeerCertificate();
+    if (_.isEmpty(certificate)) {
+      next();
     } else {
 
-      new webid.VerificationAgent(certificate).verify(function _verifySuccess (result) {
-        // WebID-verification was successful!
+      if (!req.connection.authorized) {
 
-        req.session.webId = new webid.Foaf(result).parse();
-        next();
+        _error(req, res, next, 401, 'Authorisation failed: Certificate signed by unknown authority!');
 
-      }, function _verifyError(result) {
-        // Failed WebID-verification!
+      } else {
 
-        var msg;
-        switch (result) {
-        case 'certificateProvidedSAN':
-          msg = 'No valid Subject Alternative Name in certificate!';
-          break;
-        case 'profileWellFormed':
-          msg = 'Error while loading FOAF-profile (RDF not valid?)!';
-          break;
-        case 'falseWebID':
-          msg = 'Certificate public key doesn\'t match FOAF-profile!';
-          break;
-        case 'profileAllKeysWellFormed':
-          msg = 'Missformed WebID!';
-          break;
-        default:
-          msg = 'WebID error: ' + result;
-          break;
-        }
-        _error(req, res, next, 401, 'Authorisation failed: ' + msg);
-      });
+        new webid.VerificationAgent(certificate).verify(function _verifySuccess (result) {
+          // WebID-verification was successful!
 
+          req.session.webId = new webid.Foaf(result).parse();
+          next();
+
+        }, function _verifyError(result) {
+          // Failed WebID-verification!
+
+          var msg;
+          switch (result) {
+          case 'certificateProvidedSAN':
+            msg = 'No valid Subject Alternative Name in certificate!';
+            break;
+          case 'profileWellFormed':
+            msg = 'Error while loading FOAF-profile (RDF not valid?)!';
+            break;
+          case 'falseWebID':
+            msg = 'Certificate public key doesn\'t match FOAF-profile!';
+            break;
+          case 'profileAllKeysWellFormed':
+            msg = 'Missformed WebID!';
+            break;
+          default:
+            msg = 'WebID error: ' + result;
+            break;
+          }
+          _error(req, res, next, 401, 'Authorisation failed: ' + msg);
+        });
+      }
     }
   }
 };
@@ -213,8 +225,8 @@ sslApp.use('/', _doLogin);
 
 sslApp.use('/create', _create);     // @todo check if user already has a WebID...
 
-sslApp.use('/', _profile);
 sslApp.use('/profile', _profile);
+sslApp.use('/', _profile);
 
 sslApp.use(_notFound);
 

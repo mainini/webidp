@@ -54,6 +54,7 @@ cfg.defaults({
     'validityEnd': DEFAULT_VALIDITY_END
   },
   'pageTitle': 'WebIDP --- ',
+  'accountDescription': 'account',
   'debugMode': false
 });
 
