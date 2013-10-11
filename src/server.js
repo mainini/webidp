@@ -23,7 +23,7 @@
 'use strict';
 
 var fs = require('fs'),
-  crypto = require('crypto'),
+  node_crypto = require('crypto'),
   https = require('https'),
   _ = require('underscore'),
   connect = require('connect'),
@@ -31,7 +31,7 @@ var fs = require('fs'),
   webid = require('webid'),
   cfg = require('./config.js'),
   triplestore = require('./triplestore.js'),
-  pki = require('./pki.js');
+  crypto = require('./crypto.js');
 
 
 ///////////////////// Setup triplestore
@@ -44,7 +44,7 @@ var store = triplestore.TripleStore.getInstance();
  **********************************************************/
 
 var _createChallenge = function _createChallenge() {
-  return crypto.randomBytes(32).toString();
+  return node_crypto.randomBytes(32).toString();
 };
 
 var _error = function _error (req, res, next, code, error) {
@@ -69,10 +69,10 @@ var _create = function _create(req, res) {
     var email = req.session.user.email;
 
     var id = { 'uri': cfg.getIdUri(uid),
-               'hash': pki.hashId(req.body.id) };     // @todo check if given id already exists!
+               'hash': crypto.hashId(req.body.id) };     // @todo check if given id already exists!
     id.full = id.uri + '#' + id.hash;
 
-    var cert = pki.createWebIDCertificate(id.full, name, email, req.body.spkac, store.getNextSerialNumber(), cfg.get('webid:sha256'));
+    var cert = crypto.createWebIDCertificate(id.full, name, email, req.body.spkac, store.getNextSerialNumber(), cfg.get('webid:sha256'));
     store.addId(id, name, req.body.id, cert.cert.publicKey.n.toString(16), cert.cert.publicKey.e.toString());
  
     res.statusCode = 200;
