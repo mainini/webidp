@@ -62,7 +62,7 @@ var _notFound = function _notFound(req, res, next) {
 };
 
 var _create = function _create(req, res) {
-  if (req.body.spkac) {
+  if (req.body.spkac && ! req.session.newId) {
 
     var uid = req.session.user.uid;
     var name = req.session.user.name;
@@ -75,6 +75,7 @@ var _create = function _create(req, res) {
     // @todo check challenge
     var cert = crypto.createWebIDCertificate(id.full, name, email, req.body.spkac, store.getNextSerialNumber(), cfg.get('webid:sha256'));
     store.addId(id, name, req.body.id, cert.cert.publicKey.n.toString(16), cert.cert.publicKey.e.toString());
+    req.session.newId = true;
  
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/x-x509-user-cert');    // @todo redirect user after creation
@@ -97,6 +98,7 @@ var _create = function _create(req, res) {
                               'challenge': _createChallenge(),
                               'user': req.session.user,
                               'webId': req.session.webId,
+                              'newId': req.session.newId,
                               'accountDescription': cfg.get('accountDescription') });
   }
 
