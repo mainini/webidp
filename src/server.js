@@ -12,6 +12,8 @@
  * ! WARNING ! WARNING ! WARNING ! WARNING ! WARNING ! WARNING !
  *
  * @todo document functions
+ * @todo security-check
+ * @todo html-checks
  */
 
 /*jshint node:true, bitwise:true, curly:true, immed:true, indent:2, latedef:true, newcap:true, noarg: true, noempty:true, nonew:true, quotmark:single, undef:true, unused: true, trailing:true, white:false */
@@ -221,7 +223,7 @@ if (cfg.get('debugMode')) {
 }
 
 sslApp.use('/static', connect.static('static'));
-sslApp.use('/id', _id);             // @todo Content-negotiation if retrieved by human
+sslApp.use('/id', _id);             // @feature Content-negotiation if retrieved by human
 
 // Everything below is authenticated!
 sslApp.use('/', _doLogin);
