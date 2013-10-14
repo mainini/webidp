@@ -2,20 +2,43 @@
 
   <% if (user) { %>
 
-    <div class="sixteen columns">
-      <h4>Create your WebID!</h4>
+    <script>
+      $(document).ready(function readyFunction () { 
+        $("form").submit(function( event ) {
+          $("#keygen").hide(); 
+          $("#result").show();
+          $("#keygenform").submit();
+        });
+      });
+    </script>
+
+    <div id="keygen">
+      <div class="sixteen columns">
+        <h4>Create your WebID!</h4>
+      </div>
+
+      <div class="sixteen columns">
+        <form method="post" action="/create">
+          <label for="label">Identifier for the WebID</label>
+          A simple name for remembering the usage of each of your WebIDs, like "My Firefox-ID", "My mobile ID" etc.<br> 
+          <em>Note: the identifier is publicly visible!</em>
+          <input type="text" name="id" required>
+          <label for="spkac">Key generator options</label>
+          <keygen name="spkac" challenge="<%= challenge %>" keytype="RSA">
+          <input type="submit" name="createcert" value="Create!">
+        </form>
+      </div>
     </div>
 
-    <div class="sixteen columns">
-      <form method="post" action="/create">
-        <label for="label">Identifier for the WebID</label>
-        A simple name for remembering the usage of each of your WebIDs, like "My Firefox-ID", "My mobile ID" etc.<br> 
-        <em>Note: the identifier is publicly visible!</em>
-        <input type="text" name="id" required>
-        <label for="spkac">Key generator options</label>
-        <keygen name="spkac" challenge="<%= challenge %>" keytype="RSA">
-        <input type="submit" name="createcert" value="Create!">
-      </form>
+    <div id="result" class="hidden">
+      <div class="sixteen columns">
+        <h4>WebID creation in progress...</h4>
+      </div>
+
+      <div class="sixteen columns">
+        <p>Your browser is now creating the keys used in your WebID. When it's done, it will notify you that your certificate has been installed.</p>
+        <p class="warning"><em>Restart</em> your browser after the installation to start using your new WebID!</p>
+      </div>
     </div>
 
   <% } else if (webId) { %>
@@ -23,6 +46,13 @@
     <div class="sixteen columns">
       <h4>Already logged in!</h4><br>
       You are already logged in with your WebID! Check out your <a href="/profile">profile</a>!
+    </div>
+
+  <% } else if (newId) { %>
+
+    <div class="sixteen columns">
+      <h4>WebID newly created!</h4><br>
+      You just have created a new WebID - restart your Browser to use it!
     </div>
 
   <% } else { %>
