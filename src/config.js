@@ -58,6 +58,12 @@ cfg.defaults({
   'debugMode': false
 });
 
+// set debugging options
+if(cfg.get('debugMode')) {
+  cfg.set('server:logformat', 'dev');
+  cfg.set('server:cacheTemplates', false);
+}
+
 module.exports.get = function get(key) {
   return cfg.get(key);
 };
