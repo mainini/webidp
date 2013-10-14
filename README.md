@@ -3,14 +3,16 @@ WebIDP
 
 Identity provider for [WebID](http://www.w3.org/2005/Incubator/webid/spec/).
 
-Pending features
+TODOs / Features
 ================
 
-* Support for multiple directories or flat files 
+* Security Audit
+* HTML Validation
+* Documentation
+* Support for multiple user-directories or flat files 
   (for genereting pseudonymous/company-based WebIDs)
   or: let the user enter the data?
 * OCSP/CRL
-* Security Audit
 * PFS
     * <https://tools.ietf.org/html/rfc6460>
     * <http://stackoverflow.com/questions/10185110/key-generation-requirements-for-tls-ecdhe-ecdsa-aes128-gcm-sha256>

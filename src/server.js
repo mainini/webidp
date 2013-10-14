@@ -10,10 +10,6 @@
  * LICENSE IS SUBJECT OF CHANGE ANYTIME SOON - DO NOT DISTRIBUTE!
  *
  * ! WARNING ! WARNING ! WARNING ! WARNING ! WARNING ! WARNING !
- *
- * @todo document functions
- * @todo security-check
- * @todo html-checks
  */
 
 /*jshint node:true, bitwise:true, curly:true, immed:true, indent:2, latedef:true, newcap:true, noarg: true, noempty:true, nonew:true, quotmark:single, undef:true, unused: true, trailing:true, white:false */
@@ -80,7 +76,7 @@ var _create = function _create(req, res) {
     req.session.newId = true;
  
     res.statusCode = 200;
-    res.setHeader('Content-Type', 'application/x-x509-user-cert');    // @todo redirect user after creation
+    res.setHeader('Content-Type', 'application/x-x509-user-cert');
     res.write(cert.der);
     res.end();
 
