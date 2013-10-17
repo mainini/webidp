@@ -31,18 +31,17 @@ var pki = forge.pki;
  * Function definitions
  **********************************************************/
 
+module.exports.createChallenge = function createChallenge() {
+  return forge.util.encode64(forge.random.getBytesSync(32));
+};
+
 var spkacToPublicKey = function spkacToPublicKey(spkac) {
   // @todo maybe use a validator instead (eventually integrate into forge) and maybe verify signature
+  // see proof of possession of private key, PKCS10, http://middleware.internet2.edu/pki03/presentations/10.pdf
   var asn1 = forge.asn1.fromDer(forge.util.decode64(spkac));
   return forge.pki.publicKeyFromAsn1(asn1.value[0].value[0]);
 };
 module.exports.spkacToPublicKey = spkacToPublicKey;
-
-var serialToHex = function serialToHex(serial) {
-  // see https://tools.ietf.org/html/rfc5280#section-4.1.2.2 for length
-  return String('00000000000000000000' + serial).slice(-20);
-};
-module.exports.serialToHex = serialToHex;
 
 module.exports.hashId = function hashId(id) {
   var md = forge.md.sha256.create();
@@ -50,12 +49,12 @@ module.exports.hashId = function hashId(id) {
   return  md.digest().toHex();
 };
 
-module.exports.createCACertificate = function createCACertificate(subject, keys, serial, sha256) {
+module.exports.createCACertificate = function createCACertificate(subject, keys, sha256) {
   var cert = pki.createCertificate();
   cert.setSubject(subject);
   cert.setIssuer(subject);
   cert.publicKey = keys.publicKey;
-  cert.serialNumber = serialToHex(serial);
+  cert.serialNumber = forge.util.bytesToHex(forge.random.getBytesSync(20));
   cert.validity.notBefore = cfg.getValidityStart();
   cert.validity.notAfter = cfg.getValidityEnd();
   cert.setExtensions([{ name: 'basicConstraints', cA: true, pathLenConstraint: 0 },
@@ -71,7 +70,7 @@ module.exports.createCACertificate = function createCACertificate(subject, keys,
   return cert;
 };
 
-module.exports.createServerCertificate = function createServerCertificate(subject, ip, keys, serial, caCert, caKeys, sha256) {
+module.exports.createServerCertificate = function createServerCertificate(subject, ip, keys, caCert, caKeys, sha256) {
   var signingKey;
   if (arguments.length <= 5) {
     sha256 = caCert;
@@ -85,7 +84,7 @@ module.exports.createServerCertificate = function createServerCertificate(subjec
   cert.setSubject(subject);
   cert.setIssuer(caCert.subject.attributes);
   cert.publicKey = keys.publicKey;
-  cert.serialNumber = serialToHex(serial);
+  cert.serialNumber = forge.util.bytesToHex(forge.random.getBytesSync(20));
   cert.validity.notBefore = cfg.getValidityStart();
   cert.validity.notAfter = cfg.getValidityEnd();
   cert.setExtensions([{ name: 'basicConstraints', cA: false },
@@ -106,9 +105,9 @@ module.exports.createServerCertificate = function createServerCertificate(subjec
   return cert;
 };
 
-module.exports.createWebIDCertificate = function createWebIDCertificate(id, cn, email, keys, serial, caCert, caKeys, sha256) {
+module.exports.createWebIDCertificate = function createWebIDCertificate(id, cn, email, keys, caCert, caKeys, sha256) {
   var signingKey;
-  if (arguments.length <= 6) {
+  if (arguments.length === 5) {
     sha256 = caCert;
     caCert = forge.pki.certificateFromPem(fs.readFileSync(cfg.get('ca:cert'), 'utf8'));
     signingKey = forge.pki.privateKeyFromPem(fs.readFileSync(cfg.get('ca:key'), 'utf8'));
@@ -133,7 +132,7 @@ module.exports.createWebIDCertificate = function createWebIDCertificate(id, cn, 
   cert.setSubject(subject);
   cert.setIssuer(caCert.subject.attributes);
   cert.publicKey = publicKey;
-  cert.serialNumber = serialToHex(serial);
+  cert.serialNumber = forge.util.bytesToHex(forge.random.getBytesSync(20));
   cert.validity.notBefore = cfg.getValidityStart();
   cert.validity.notAfter = cfg.getValidityEnd();
   cert.setExtensions([{ name: 'basicConstraints', cA: false},

@@ -1,36 +1,54 @@
 <% include views/head.html %>
 
-  <% if (user) { %>
+  <% if (user && !newId) { %>
 
     <script>
       $(document).ready(function readyFunction () { 
-        $("form").submit(function( event ) {
-          $("#keygen").hide(); 
-          $("#result").show();
-          $("#keygenform").submit();
+        $("#submitButton").click(function(event) {
+          event.preventDefault();
+          $.post( "api/haslabel", { label:  $("#label").val() }, function(response) {
+            if (response.status) {
+              $("#labelExists").show();
+            } else {
+              $("#keygen").hide();
+              $("#result").show();
+              $("#keygenForm").submit();
+            }
+          });
         });
       });
     </script>
 
     <div id="keygen">
+
       <div class="sixteen columns">
         <h4>Create your WebID!</h4>
       </div>
 
+
       <div class="sixteen columns">
-        <form method="post" action="/create">
-          <label for="label">Identifier for the WebID</label>
+        <form id="keygenForm" method="post" action="/create">
+
+          <label for="label">Label for your WebID</label>
           A simple name for remembering the usage of each of your WebIDs, like "My Firefox-ID", "My mobile ID" etc.<br> 
           <em>Note: the identifier is publicly visible!</em>
-          <input type="text" name="label" required>
+          <input id="label" type="text" name="label" required>
           <label for="spkac">Key generator options</label>
           <keygen name="spkac" challenge="<%= challenge %>" keytype="RSA">
-          <input type="submit" name="createcert" value="Create!">
+
+          <div id="labelExists" class="hidden">
+            <p class="warning">You already have a WebID with this label, please choose another one.</p>
+          </div>
+
+          <input id="submitButton" type="submit" name="createCert" value="Create!">
+
         </form>
       </div>
+
     </div>
 
     <div id="result" class="hidden">
+
       <div class="sixteen columns">
         <h4>WebID creation in progress...</h4>
       </div>
@@ -39,6 +57,7 @@
         <p>Your browser is now creating the keys used in your WebID. When it's done, it will notify you that your certificate has been installed.</p>
         <p class="warning"><em>Restart</em> your browser after the installation to start using your new WebID!</p>
       </div>
+
     </div>
 
   <% } else if (webId) { %>

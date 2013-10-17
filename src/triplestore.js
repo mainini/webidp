@@ -95,8 +95,17 @@ exports.TripleStore = (function() {
       });
     };
 
-    this.getNextSerialNumber = function getNextSerialNumber() {
-      return 3;
+    this.hasLabel = function hasLabel(id, label, callback) {
+      var sparql = 'SELECT ?o WHERE { GRAPH <'  + cfg.getIdUri(id) + '> { ?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#label> ?o } }';
+      this.store.execute(sparql, function querySuccess(success, results) {
+        var found = false;
+        for(var i = 0; i < results.length; i++) {
+          if(results[i].o.value.valueOf() === label) {
+            found = true;
+          }
+        }
+        callback(found);
+      });
     };
 
     this.initialiseStore = function _initialiseStore() {

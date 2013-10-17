@@ -21,12 +21,12 @@
 'use strict';
 
 var fs = require('fs'),
-  node_crypto = require('crypto'),
   https = require('https'),
   _ = require('underscore'),
   connect = require('connect'),
   render = require('connect-render'),
   webid = require('webid'),
+  rest = require('connect-rest'),
   cfg = require('./config.js'),
   triplestore = require('./triplestore.js'),
   crypto = require('./crypto.js');
@@ -40,10 +40,6 @@ var store = triplestore.TripleStore.getInstance();
 /***********************************************************
  * Function definitions
  **********************************************************/
-
-var _createChallenge = function _createChallenge() {
-  return node_crypto.randomBytes(32).toString();
-};
 
 var _error = function _error (req, res, next, code, error) {
   res.statusCode = (typeof code === 'undefined') ? 500 : code;
@@ -71,7 +67,7 @@ var _create = function _create(req, res) {
     id.full = id.uri + '#' + id.hash;
 
     // @todo check challenge
-    var cert = crypto.createWebIDCertificate(id.full, name, email, req.body.spkac, store.getNextSerialNumber(), cfg.get('webid:sha256'));
+    var cert = crypto.createWebIDCertificate(id.full, name, email, req.body.spkac, cfg.get('webid:sha256'));
     store.addId(id, name, req.body.label, cert.cert.publicKey.n.toString(16), cert.cert.publicKey.e.toString());
     req.session.newId = true;
  
@@ -93,7 +89,7 @@ var _create = function _create(req, res) {
 
     res.render('create.html', { 'title': cfg.get('pageTitle') + 'Create your WebID!',
                               'debugMode': cfg.get('debugMode'),
-                              'challenge': _createChallenge(),
+                              'challenge': crypto.createChallenge(),
                               'user': req.session.user,
                               'webId': req.session.webId,
                               'newId': req.session.newId,
@@ -188,6 +184,28 @@ var _doLogin = function _doLogin (req, res, next) {
   }
 };
 
+var _hasLabel = function _hasLabel(req, content, callback) {
+  var result = null;
+  if (req.session.user.uid) {
+
+    if (content.label) {
+      store.hasLabel(req.session.user.uid, content.label, function _labelCB(status) {
+        return callback(null, { status: status });
+      });
+    } else {
+      result = new Error('Missing/invalid argument!');
+      result.statusCode = 400;
+    }
+
+  } else {
+    result = new Error('Unauthorized!');
+    result.statusCode = 401;
+  }
+
+  if (result !== null) {      // preventing that the response gets sent out if the callback has already been returned above
+    return callback(null, result);
+  }
+};
 
 /***********************************************************
  * Main application
@@ -210,7 +228,7 @@ var sslApp = connect();
 sslApp.use(connect.logger(cfg.get('server:logformat')));
 sslApp.use(connect.bodyParser());
 sslApp.use(connect.cookieParser());
-sslApp.use(connect.session({ key: 'session', secret: _createChallenge()}));
+sslApp.use(connect.session({ key: 'session', secret: crypto.createChallenge()}));
 sslApp.use(render({ root: './views', layout: false, cache: cfg.get('server:cacheTemplates') }));
 
 if (cfg.get('debugMode')) {
@@ -227,6 +245,11 @@ sslApp.use('/', _doLogin);
 sslApp.use('/create', _create);
 
 sslApp.use('/profile', _profile);
+
+sslApp.use(rest.rester({ context: '/api' }));
+rest.post('haslabel', _hasLabel, { 'label': 'Some label' });
+sslApp.use('/api/', _notFound);
+
 sslApp.use('/', _profile);
 
 sslApp.use(_notFound);
