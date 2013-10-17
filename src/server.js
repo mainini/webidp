@@ -63,7 +63,7 @@ var _create = function _create(req, res) {
     var email = req.session.user.email;
 
     var id = { 'uri': cfg.getIdUri(uid),
-               'hash': crypto.hashId(req.body.label) };     // @todo check if given id already exists!
+               'hash': crypto.sha256(req.body.label) };
     id.full = id.uri + '#' + id.hash;
 
     // @todo check challenge

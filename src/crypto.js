@@ -43,7 +43,7 @@ var spkacToPublicKey = function spkacToPublicKey(spkac) {
 };
 module.exports.spkacToPublicKey = spkacToPublicKey;
 
-module.exports.hashId = function hashId(id) {
+module.exports.sha256 = function sha256(id) {
   var md = forge.md.sha256.create();
   md.update(id);
   return  md.digest().toHex();
