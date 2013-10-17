@@ -186,24 +186,31 @@ var _doLogin = function _doLogin (req, res, next) {
 
 var _hasLabel = function _hasLabel(req, content, callback) {
   var result = null;
-  if (req.session.user.uid) {
+  if (!req.session || !req.session.user || ! req.session.user.uid) {
+
+    result = new Error('Unauthorized!');
+    result.statusCode = 401;
+
+  } else {
 
     if (content.label) {
-      store.hasLabel(req.session.user.uid, content.label, function _labelCB(status) {
-        return callback(null, { status: status });
-      });
+      if (content.label.toString().match(/[^A-Za-z0-9_\s\-]/g)) {
+        result = new Error('Invalid character in label!');
+        result.statusCode = 400;
+      } else {
+        store.hasLabel(req.session.user.uid, content.label, function _labelCB(status) {
+          return callback(null, { status: status });
+        });
+      }
     } else {
       result = new Error('Missing/invalid argument!');
       result.statusCode = 400;
     }
 
-  } else {
-    result = new Error('Unauthorized!');
-    result.statusCode = 401;
   }
 
   if (result !== null) {      // preventing that the response gets sent out if the callback has already been returned above
-    return callback(null, result);
+    return callback(result);
   }
 };
 

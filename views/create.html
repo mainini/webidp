@@ -8,12 +8,18 @@
           event.preventDefault();
           $.post( "api/haslabel", { label:  $("#label").val() }, function(response) {
             if (response.status) {
-              $("#labelExists").show();
+              $("#errorMessage").empty();
+              $("#errorMessage").append("You already have a WebID with this label, please choose another one.");
+              $("#errorDiv").show();
             } else {
               $("#keygen").hide();
               $("#result").show();
               $("#keygenForm").submit();
             }
+          }).fail(function (jqXHR, textStatus) {
+            $("#errorMessage").empty();
+            $("#errorMessage").append(jqXHR.responseText);
+            $("#errorDiv").show();
           });
         });
       });
@@ -36,8 +42,8 @@
           <label for="spkac">Key generator options</label>
           <keygen name="spkac" challenge="<%= challenge %>" keytype="RSA">
 
-          <div id="labelExists" class="hidden">
-            <p class="warning">You already have a WebID with this label, please choose another one.</p>
+          <div id="errorDiv" class="hidden">
+            <p id="errorMessage" class="warning"></p>
           </div>
 
           <input id="submitButton" type="submit" name="createCert" value="Create!">
