@@ -53,8 +53,6 @@ cfg.defaults({
     'validityStart': DEFAULT_VALIDITY_START,
     'validityEnd': DEFAULT_VALIDITY_END
   },
-  'pageTitle': 'WebIDP --- ',
-  'accountDescription': 'account',
   'debugMode': false
 });
 

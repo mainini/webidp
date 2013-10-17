@@ -46,8 +46,7 @@ var _error = function _error (req, res, next, code, error) {
   res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 
   error = (typeof error === 'undefined') ?  'Something bad happened...' : error;
-  res.render('error.html', { 'title': cfg.get('pageTitle') + 'Error! ' + error,
-                             'debugMode': cfg.get('debugMode'),
+  res.render('error.html', { 'debugMode': cfg.get('debugMode'),
                              'error': error });
 };
 
@@ -87,13 +86,11 @@ var _create = function _create(req, res) {
     res.statusCode = 200;
     res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 
-    res.render('create.html', { 'title': cfg.get('pageTitle') + 'Create your WebID!',
-                              'debugMode': cfg.get('debugMode'),
-                              'challenge': crypto.createChallenge(),
-                              'user': req.session.user,
-                              'webId': req.session.webId,
-                              'newId': req.session.newId,
-                              'accountDescription': cfg.get('accountDescription') });
+    res.render('create.html', { 'debugMode': cfg.get('debugMode'),
+                                'challenge': crypto.createChallenge(),
+                                'user': req.session.user,
+                                'webId': req.session.webId,
+                                'newId': req.session.newId });
   }
 
 };
@@ -102,9 +99,8 @@ var _profile = function _profile (req, res) {
   res.statusCode = 200;
   res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 
-  res.render('profile.html', { 'title': cfg.get('pageTitle') + 'Profile',
-                             'debugMode': cfg.get('debugMode'),
-                             'webId': req.session.webId });
+  res.render('profile.html', { 'debugMode': cfg.get('debugMode'),
+                               'webId': req.session.webId });
 };
 
 var _id = function _id(req, res, next) {
@@ -128,8 +124,7 @@ var _sparql = function _sparql (req, res) {
   res.statusCode = 200;
   res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 
-  res.render('sparql.html', { 'title': cfg.get('pageTitle') + 'SPARQL Console',
-                              'result': result,
+  res.render('sparql.html', { 'result': result,
                               'debugMode': cfg.get('debugMode') });
 };
 
