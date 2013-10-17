@@ -56,6 +56,7 @@ var _notFound = function _notFound(req, res, next) {
 
 var _create = function _create(req, res) {
   if (req.body.spkac && ! req.session.newId) {
+    // @todo check challenge
 
     var uid = req.session.user.uid;
     var name = req.session.user.name;
@@ -65,8 +66,8 @@ var _create = function _create(req, res) {
                'hash': crypto.sha256(req.body.label) };
     id.full = id.uri + '#' + id.hash;
 
-    // @todo check challenge
-    var cert = crypto.createWebIDCertificate(id.full, name, email, req.body.spkac, cfg.get('webid:sha256'));
+    var serial = crypto.generateSerial();
+    var cert = crypto.createWebIDCertificate(id.full, name, email, req.body.spkac, serial, cfg.get('webid:sha256'));
     store.addId(id, name, req.body.label, cert.cert.publicKey.n.toString(16), cert.cert.publicKey.e.toString());
     req.session.newId = true;
  
@@ -87,7 +88,7 @@ var _create = function _create(req, res) {
     res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 
     res.render('create.html', { 'debugMode': cfg.get('debugMode'),
-                                'challenge': crypto.createChallenge(),
+                                'challenge': crypto.generateChallenge(),
                                 'user': req.session.user,
                                 'webId': req.session.webId,
                                 'newId': req.session.newId });
@@ -230,7 +231,7 @@ var sslApp = connect();
 sslApp.use(connect.logger(cfg.get('server:logformat')));
 sslApp.use(connect.bodyParser());
 sslApp.use(connect.cookieParser());
-sslApp.use(connect.session({ key: 'session', secret: crypto.createChallenge()}));
+sslApp.use(connect.session({ key: 'session', secret: crypto.generateChallenge()}));
 sslApp.use(render({ root: './views', layout: false, cache: cfg.get('server:cacheTemplates') }));
 
 if (cfg.get('debugMode')) {
