@@ -2,7 +2,7 @@
  * @file connect-based node.js-server for WebIDP
  * @copyright 2013 Berne University of Applied Sciences (BUAS) -- {@link http://bfh.ch}
  * @author Pascal Mainini <pascal.mainini@bfh.ch>
- * @version 0.0.2
+ * @version 0.0.3
  *
  * ! WARNING ! WARNING ! WARNING ! WARNING ! WARNING ! WARNING !
  *
@@ -41,6 +41,19 @@ var store = triplestore.TripleStore.getInstance();
  * Function definitions
  **********************************************************/
 
+//////////////////// Plain client API
+
+////////// Unauthenticated functions
+
+/**
+ * Renders an error-page to the client with the specified code and error.
+ *
+ * @param   {http.IncomingMessage}    req       The incomming request of the user 
+ * @param   {http.ServerResponse}     res       The outgoing response of the server
+ * @param   {Function}                next      Next handler in chain
+ * @param   {Number}                  code      HTTP-errorcode to use
+ * @param   {String}                  error     String describing the error 
+ */
 var _error = function _error (req, res, next, code, error) {
   res.statusCode = (typeof code === 'undefined') ? 500 : code;
   res.setHeader('Content-Type', 'text/html; charset=UTF-8');
@@ -50,60 +63,25 @@ var _error = function _error (req, res, next, code, error) {
                              'error': error });
 };
 
+/**
+ * Prepares a wrapped _error-function returning not-found (404) errors. 
+ *
+ * @param   {http.IncomingMessage}    req       The incomming request of the user 
+ * @param   {http.ServerResponse}     res       The outgoing response of the server
+ * @param   {Function}                next      Next handler in chain
+ * @returns {Function}                A wrapped _error-Function 
+ */
 var _notFound = function _notFound(req, res, next) {
   return _error(req, res, next, 404, 'Page not found!');
 };
 
-var _create = function _create(req, res) {
-  if (req.body.spkac && ! req.session.newId) {
-    // @todo check challenge
-
-    var uid = req.session.user.uid;
-    var name = req.session.user.name;
-    var email = req.session.user.email;
-
-    var id = { 'uri': cfg.getIdUri(uid),
-               'hash': crypto.sha256(req.body.label) };
-    id.full = id.uri + '#' + id.hash;
-
-    var serial = crypto.generateSerial();
-    var cert = crypto.createWebIDCertificate(id.full, name, email, req.body.spkac, serial, cfg.get('webid:sha256'));
-    store.addId(id, name, req.body.label, cert.cert.publicKey.n.toString(16), cert.cert.publicKey.e.toString());
-    req.session.newId = true;
- 
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'application/x-x509-user-cert');
-    res.write(cert.der);
-    res.end();
-
-  } else {
-
-    if (req.body.uid) {
-      req.session.user = { uid: req.body.uid,
-                           name: 'Justus Testus',
-                           email: 'justus.testus@bfh.ch' };
-    }
-
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'text/html; charset=UTF-8');
-
-    res.render('create.html', { 'debugMode': cfg.get('debugMode'),
-                                'challenge': crypto.generateChallenge(),
-                                'user': req.session.user,
-                                'webId': req.session.webId,
-                                'newId': req.session.newId });
-  }
-
-};
-
-var _profile = function _profile (req, res) {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'text/html; charset=UTF-8');
-
-  res.render('profile.html', { 'debugMode': cfg.get('debugMode'),
-                               'webId': req.session.webId });
-};
-
+/**
+ * Serves the FOAF-profile of a WebID.
+ *
+ * @param   {http.IncomingMessage}    req       The incomming request of the user 
+ * @param   {http.ServerResponse}     res       The outgoing response of the server
+ * @param   {Function}                next      Next handler in chain
+ */
 var _id = function _id(req, res, next) {
   store.getId(req.url.substr(1), function _gotId(content) {
     if (content.length === 0) {
@@ -116,6 +94,14 @@ var _id = function _id(req, res, next) {
   });
 };
 
+/**
+ * Backend-handler for the 'sparql'-view accessible only in debug mode.
+ * The sparql-view provides a simple interface to the triplestore for direct SPARQL-
+ * queries.
+ *
+ * @param   {http.IncomingMessage}    req       The incomming request of the user 
+ * @param   {http.ServerResponse}     res       The outgoing response of the server
+ */
 var _sparql = function _sparql (req, res) {
   var result;
   if (req.body.query) {
@@ -130,6 +116,16 @@ var _sparql = function _sparql (req, res) {
 };
 
 
+////////// Authenticated functions
+
+/**
+ * Login-handler - tries to identify a user with a WebID. If the identification was successful,
+ * req.session.webId is set. The function either calls the next handler in chain or an error-function.
+ * 
+ * @param   {http.IncomingMessage}    req       The incomming request of the user 
+ * @param   {http.ServerResponse}     res       The outgoing response of the server
+ * @param   {Function}                next      Next handler in chain
+ */
 var _doLogin = function _doLogin (req, res, next) {
   if (req.session.webId) {
     next();
@@ -180,6 +176,91 @@ var _doLogin = function _doLogin (req, res, next) {
   }
 };
 
+/**
+ * Backend-handler for the 'create'-view where the user logs in and creates his WebID.
+ * The following cases can be distinguished:
+ *
+ * 1) no SPKAC was provided
+ *    Either user has or has not been authenticated with a WebID or has just logged in using 
+ *    the userdirectory. Handling of these cases is done in the view. Also, this case handles
+ *    the req.session.newId-flag set by 2) or sets the user-attributes returned by the userdirectory.
+ * 2) a SPKAC was sent in the body and req.session.newId is not set
+ *    In this case, checking/validation will be done and a new WebID created and sent back to
+ *    the user. Also, req.session.newId will be set to prevent the user from generating more
+ *    than one WebID per session. 
+ *
+ * @param   {http.IncomingMessage}    req       The incomming request of the user 
+ * @param   {http.ServerResponse}     res       The outgoing response of the server
+ */
+var _create = function _create(req, res) {
+  if (req.body.spkac && ! req.session.newId) {
+    // @todo check challenge
+
+    var uid = req.session.user.uid;
+    var name = req.session.user.name;
+    var email = req.session.user.email;
+
+    var id = { 'uri': cfg.getIdUri(uid),
+               'hash': crypto.sha256(req.body.label) };
+    id.full = id.uri + '#' + id.hash;
+
+    var serial = crypto.generateSerial();
+    var cert = crypto.createWebIDCertificate(id.full, name, email, req.body.spkac, serial, cfg.get('webid:sha256'));
+    store.addId(id, name, req.body.label, cert.cert.publicKey.n.toString(16), cert.cert.publicKey.e.toString());
+    req.session.newId = true;
+ 
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/x-x509-user-cert');
+    res.write(cert.der);
+    res.end();
+
+  } else {
+
+    if (req.body.uid) {
+      req.session.user = { uid: req.body.uid,
+                           name: 'Justus Testus',
+                           email: 'justus.testus@bfh.ch' };
+    }
+
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+
+    res.render('create.html', { 'debugMode': cfg.get('debugMode'),
+                                'challenge': crypto.generateChallenge(),
+                                'user': req.session.user,
+                                'webId': req.session.webId,
+                                'newId': req.session.newId });
+  }
+};
+
+/**
+ * Backend-handler for the 'profile'-view used to administrate the WebID(s)
+ *
+ * @param   {http.IncomingMessage}    req       The incomming request of the user 
+ * @param   {http.ServerResponse}     res       The outgoing response of the server
+ */
+var _profile = function _profile (req, res) {
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+
+  res.render('profile.html', { 'debugMode': cfg.get('debugMode'),
+                               'webId': req.session.webId });
+};
+
+
+//////////////////// RESTful-API
+
+/**
+ * Restful API-function for checking if a given user already has a WebID with a given
+ * label. Calls to this function must have been authorized before. 
+ * Either returns an error or a JSON-object containing a status-attribute (boolean) 
+ * indicating if the given label already exists.
+ *
+ * @param   {Object}                  req       A request-object given by connect-rest
+ * @param   {Object}                  content   JSON-parsed HTTP-body of the request
+ * @param   {Function}                callback  Next handler in chain
+ * @returns {Object}                  Returns a call to callback
+ */
 var _hasLabel = function _hasLabel(req, content, callback) {
   var result = null;
   if (!req.session || !req.session.user || ! req.session.user.uid) {
@@ -202,13 +283,13 @@ var _hasLabel = function _hasLabel(req, content, callback) {
       result = new Error('Missing/invalid argument!');
       result.statusCode = 400;
     }
-
   }
 
   if (result !== null) {      // preventing that the response gets sent out if the callback has already been returned above
     return callback(result);
   }
 };
+
 
 /***********************************************************
  * Main application
@@ -249,7 +330,7 @@ sslApp.use('/create', _create);
 
 sslApp.use('/profile', _profile);
 
-sslApp.use(rest.rester({ context: '/api' }));
+sslApp.use(rest.rester({ context: '/api' }));       // @todo disable logging
 rest.post('haslabel', _hasLabel, { 'label': 'Some label' });
 sslApp.use('/api/', _notFound);
 

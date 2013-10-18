@@ -2,7 +2,7 @@
  * @file Configuration helper for WebIDP
  * @copyright 2013 Berne University of Applied Sciences (BUAS) -- {@link http://bfh.ch}
  * @author Pascal Mainini <pascal.mainini@bfh.ch>
- * @version 0.0.2
+ * @version 0.0.3
  *
  * ! WARNING ! WARNING ! WARNING ! WARNING ! WARNING ! WARNING !
  *
@@ -13,6 +13,10 @@
  */
 
 /*jshint node:true, bitwise:true, curly:true, immed:true, indent:2, latedef:true, newcap:true, noarg: true, noempty:true, nonew:true, quotmark:single, undef:true, unused: true, trailing:true, white:false */
+
+/***********************************************************
+ * Initialisation
+ **********************************************************/
 
 'use strict';
 
@@ -62,19 +66,38 @@ if(cfg.get('debugMode')) {
   cfg.set('server:cacheTemplates', false);
 }
 
+
+/***********************************************************
+ * Function definitions
+ **********************************************************/
+
+/**
+ * Retrieves an entry from the configuration. This is simply a proxy to nconf.get()
+ *
+ * @param   {Object}      key     Key to fetch the value for
+ * @returns {Object}      The value as returned by nconf.get()
+ */
 module.exports.get = function get(key) {
   return cfg.get(key);
 };
 
-var getIdUri = function getIdUri(id) {
-  return 'https://' + cfg.get('server:fqdn') + ':' + cfg.get('server:port') + '/id/' + id;
+/**
+ * Returns the URI for a given UID.
+ *
+ * @param   {String}      uid     UID used for generating the URI 
+ * @returns {String}      The full URI for a given UID, without the fragment identifier
+ */
+var getIdUri = function getIdUri(uid) {
+  return 'https://' + cfg.get('server:fqdn') + ':' + cfg.get('server:port') + '/id/' + uid;
 };
 module.exports.getIdUri = getIdUri;
 
-module.exports.getIdUriFull = function getIdUriFull(id) {
-  return getIdUri(id) + '#' + cfg.get('webid:fragment');
-};
-
+/**
+ * Returns a startdate used for the validity of a certificate. If no date is specified in the
+ * configuration, a new date based on the current timestamp will be generated
+ *
+ * @returns {String}      A datestring
+ */
 var getValidityStart = function getValidityStart() {
   var date;
 
@@ -94,6 +117,14 @@ var getValidityStart = function getValidityStart() {
 };
 module.exports.getValidityStart = getValidityStart;
 
+/**
+ * Returns an endate used for the validity of a certificate. If no date is specified in the
+ * configuration, a new date with DEFAULT_VALIDITY_END-offset from getValidityStart() will be generated
+ *
+ * Configuration can specify the interval in minutes, hours, days, months or years.
+ *
+ * @returns {String}      A datestring
+ */
 var getValidityEnd = function getValidityEnd() {
   var date = getValidityStart().AsDateJs();
   var end = cfg.get('webid:validityEnd');

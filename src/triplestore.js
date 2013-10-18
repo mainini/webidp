@@ -2,7 +2,7 @@
  * @file Interface to triplestore for WebIDP 
  * @copyright 2013 Berne University of Applied Sciences (BUAS) -- {@link http://bfh.ch}
  * @author Pascal Mainini <pascal.mainini@bfh.ch>
- * @version 0.0.2
+ * @version 0.0.3
  *
  * ! WARNING ! WARNING ! WARNING ! WARNING ! WARNING ! WARNING !
  *
@@ -31,10 +31,19 @@ var rdfstore = require('rdfstore'),
 exports.TripleStore = (function() {
   var instance = null;
 
-///////////////////// 'constructor'
+///////////////////// Private singleton object
 
+  /**
+   * Private singleton instance
+   */
   function PrivateConstructor() {
 
+    /**
+     * Executes a SPARQL-query on the store.
+     *
+     * @param   {String}        sparqlQuery   The query to execute
+     * @returns {String}        Either Turtle-formatted RDF, simple triples or an error message
+     */
     this.query = function query(sparqlQuery) {
       var result;
       this.store.execute(sparqlQuery, function querySuccess(success, results) {
@@ -58,6 +67,15 @@ exports.TripleStore = (function() {
       return result;
     };
 
+    /**
+     * Creates a new FOAF-profile and loads it into the store.
+     *
+     * @param   {Object}        id          An object containing the id of the WebID and it's URI-representations
+     * @param   {String}        name        Name of the user
+     * @param   {String}        label       Label given by the user for identifying the WebID
+     * @param   {String}        modulus     Modulus of the user's public key
+     * @param   {String}        exponent    Exponent of the user's public key
+     */
     this.addId = function addId(id, name, label, modulus, exponent) {
       var jsonld = {
         '@context': {
@@ -86,15 +104,28 @@ exports.TripleStore = (function() {
         }
       };
 
-      this.store.load('application/ld+json', jsonld, id.uri, function _storeLoad(success, results) {});
+      this.store.load('application/ld+json', jsonld, id.uri, function _storeLoad() {});
     };
 
+    /**
+     * Returns a specified WebID as Turtle.
+     *
+     * @param   {Object}        id          UID of the WebID
+     * @param   {Function}      callback    Called with the Turtle-data
+     */
     this.getId = function getId(id, callback) {
       this.store.graph(cfg.getIdUri(id), function(success, graph){
         callback(graph.toNT());
       });
     };
 
+    /**
+     * Checks if a given UID already has a WebID with a given label.
+     *
+     * @param   {Object}        id          UID of the WebID
+     * @param   {Object}        label       The label to check for
+     * @param   {Function}      callback    Called with true if the label already exists, false otherwise.
+     */
     this.hasLabel = function hasLabel(id, label, callback) {
       var sparql = 'SELECT ?o WHERE { GRAPH <'  + cfg.getIdUri(id) + '> { ?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#label> ?o } }';
       this.store.execute(sparql, function querySuccess(success, results) {
@@ -108,6 +139,9 @@ exports.TripleStore = (function() {
       });
     };
 
+    /**
+     * Sets up the store in-memory or using a MongoDB - depending on the configuration.
+     */
     this.initialiseStore = function _initialiseStore() {
       var _storeReady = function _storeReady(store) {
         instance.store = store;
@@ -130,8 +164,16 @@ exports.TripleStore = (function() {
 
 ///////////////////// returned function
 
+  /**
+   * Self-calling constructor creating the instance
+   */
   return new function() {
 
+    /**
+     * getter on the instance.
+     * 
+     * @returns   {PrivateConstructor}    The private instance - creating it first if needed.
+     */
     this.getInstance = function getInstance() {
       if (instance === null) {
         instance = new PrivateConstructor();
