@@ -140,6 +140,16 @@ exports.TripleStore = (function() {
     };
 
     /**
+     * Checks if the given serial has already been assigned to a certificate.
+     *
+     * @param   {String}        serial      The serial to check
+     * @param   {Function}      callback    Called with true if the label already exists, false otherwise.
+     */
+    this.serialExists = function serialExists(serial, callback) {
+      callback(false);
+    };
+
+    /**
      * Sets up the store in-memory or using a MongoDB - depending on the configuration.
      */
     this.initialiseStore = function _initialiseStore() {

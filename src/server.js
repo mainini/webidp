@@ -204,15 +204,23 @@ var _create = function _create(req, res) {
                'hash': crypto.sha256(req.body.label) };
     id.full = id.uri + '#' + id.hash;
 
-    var serial = crypto.generateSerial();
-    var cert = crypto.createWebIDCertificate(id.full, name, email, req.body.spkac, serial, cfg.get('webid:sha256'));
-    store.addId(id, name, req.body.label, cert.cert.publicKey.n.toString(16), cert.cert.publicKey.e.toString());
-    req.session.newId = true;
- 
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'application/x-x509-user-cert');
-    res.write(cert.der);
-    res.end();
+    // self-calling closure repeatedly called if duplicate serial numbers are generated
+    var serial;
+    var serialGenerator = (function serialGenerator(serialExists) {
+      if (serialExists) {
+        serial = crypto.generateSerial();
+        store.serialExists(serial, serialGenerator);
+      } else {
+        var cert = crypto.createWebIDCertificate(id.full, name, email, req.body.spkac, serial, cfg.get('webid:sha256'));
+        store.addId(id, name, req.body.label, cert.cert.publicKey.n.toString(16), cert.cert.publicKey.e.toString());
+        req.session.newId = true;
+
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/x-x509-user-cert');
+        res.write(cert.der);
+        res.end();
+      }
+    }) (true);
 
   } else {
 
