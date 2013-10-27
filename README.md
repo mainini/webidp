@@ -6,6 +6,9 @@ Identity provider for [WebID](http://www.w3.org/2005/Incubator/webid/spec/).
 TODOs / Features
 ================
 
+* Management-GUI
+* LDAP
+
 * Input Validation
 * HTML Validation
 * Security Audit (https://www.owasp.org/index.php/Category:OWASP_Top_Ten_Project#OWASP_Top_10_for_2013)
