@@ -9,6 +9,7 @@ TODOs / Features
 * Input Validation
 * HTML Validation
 * Security Audit (https://www.owasp.org/index.php/Category:OWASP_Top_Ten_Project#OWASP_Top_10_for_2013)
+* Revoken von WebIDs wenn der LDAP-Account nicht mehr existiert?
 * Automated testing / code coverage
 * PFS
     * <https://tools.ietf.org/html/rfc6460>
