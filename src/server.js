@@ -200,7 +200,8 @@ var _create = function _create(req, res) {
     var name = req.session.user.name;
     var email = req.session.user.email;
 
-    var id = { 'uri': cfg.getIdUri(uid),
+    var id = { 'uid': uid,
+               'uri': cfg.getIdUri(uid),
                'hash': crypto.sha256(req.body.label) };
     id.full = id.uri + '#' + id.hash;
 
@@ -212,12 +213,12 @@ var _create = function _create(req, res) {
         store.serialExists(serial, serialGenerator);
       } else {
         var cert = crypto.createWebIDCertificate(id.full, name, email, req.body.spkac, serial, cfg.get('webid:sha256'));
-        store.addId(id, name, req.body.label, cert.cert.publicKey.n.toString(16), cert.cert.publicKey.e.toString());
+        store.addId(id, name, email, req.body.label, cert);
         req.session.newId = true;
 
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/x-x509-user-cert');
-        res.write(cert.der);
+        res.write(new Buffer(cert.der, 'binary'));
         res.end();
       }
     }) (true);
