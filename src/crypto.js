@@ -225,8 +225,10 @@ module.exports.createWebIDCertificate = function createWebIDCertificate(id, cn, 
     cert.sign(signingKey);
   }
 
+  var bytes = forge.asn1.toDer(forge.pki.certificateToAsn1(cert)).getBytes();
   return {
     'cert': cert,
-    'der':  new Buffer(forge.asn1.toDer(forge.pki.certificateToAsn1(cert)).getBytes(), 'binary')
+    'der':  bytes,
+    'base64DER': forge.util.encode64(bytes)
   };
 };
