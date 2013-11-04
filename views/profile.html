@@ -2,12 +2,19 @@
 
   <% if (webId) { %>
 
+    <script>
+        $("body").data("webids", <%- data %>);
+    </script>
+
+    <script src="/static/scripts/underscore.js" type="text/javascript"></script>
+    <script src="/static/scripts/backbone.js" type="text/javascript"></script>
+    <script src="/static/scripts/profile.js" type="text/javascript"></script>
+
     <div class="sixteen columns">
       <h4>Welcome to your profile</h4>
     </div>
 
-    <div class="sixteen columns">
-    Welcome back, <%= webId.name %>! You have successfully authenticated using your WebID <%= webId.webid %>.
+    <div id="webidview" class="sixteen columns">
     </div>
 
   <% } else { %>
