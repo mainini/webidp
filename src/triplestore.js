@@ -106,7 +106,7 @@ exports.TripleStore = (function() {
         '@type': 'http://webidp.local/vocab#User',
         'http://webidp.local/vocab#name': name,
         'http://webidp.local/vocab#email': email,
-        'http://webidp.local/vocab#webID': 'http://webidp.local/webids/' + id.uid + '#' + id.hash
+        'http://webidp.local/vocab#webID': { '@id': 'http://webidp.local/webids/' + id.uid + '#' + id.hash }
       };
       this.store.load('application/ld+json', jsonld, 'http://webidp.local/idp', function _storeLoad() {});
 
@@ -148,7 +148,7 @@ exports.TripleStore = (function() {
         'http://webidp.local/vocab#active': true,
         'startValidity': cert.cert.validity.notBefore.toISOString(),
         'endValidity': cert.cert.validity.notAfter.toISOString(),
-        'http://webidp.local/vocab#cert': 'http://webidp.local/certs#' + cert.cert.serialNumber
+        'http://webidp.local/vocab#cert': { '@id': 'http://webidp.local/certs#' + cert.cert.serialNumber }
       };
       this.store.load('application/ld+json', jsonld, 'http://webidp.local/idp', function _storeLoad() {});
     };
@@ -173,15 +173,17 @@ exports.TripleStore = (function() {
      * @param   {Function}      callback    Called with true if the label already exists, false otherwise.
      */
     this.hasLabel = function hasLabel(id, label, callback) {
-      var sparql = 'SELECT ?o WHERE { GRAPH <'  + cfg.getIdUri(id) + '> { ?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#label> ?o } }';
+      var sparql = 'SELECT ?label WHERE { GRAPH <http://webidp.local/idp> { <http://webidp.local/users#' + id + '> <http://webidp.local/vocab#webID> ?webid . ?webid  <http://webidp.local/vocab#label> ?label . } }';
       this.store.execute(sparql, function querySuccess(success, results) {
-        var found = false;
-        for(var i = 0; i < results.length; i++) {
-          if(results[i].o.value.valueOf() === label) {
-            found = true;
+        if (success && results) {
+          var found = false;
+          for(var i = 0; i < results.length; i++) {
+            if(results[i].label.value.valueOf() === label) {
+              found = true;
+            }
           }
+          callback(found);
         }
-        callback(found);
       });
     };
 
@@ -194,8 +196,8 @@ exports.TripleStore = (function() {
     this.serialExists = function serialExists(serial, callback) {
       var sparql = 'SELECT ?serial WHERE { GRAPH <http://webidp.local/idp> { ?cert a <http://webidp.local/vocab#Cert> . ?cert <http://webidp.local/vocab#serial> ?serial . } }';
       this.store.execute(sparql, function querySuccess(success, results) {
-        var found = false;
         if (success && results) {
+          var found = false;
           for(var i = 0; i < results.length; i++) {
             if(results[i].serial.value.valueOf() === serial) {
               found = true;
