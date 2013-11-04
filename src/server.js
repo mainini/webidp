@@ -257,8 +257,18 @@ var _profile = function _profile (req, res) {
   res.statusCode = 200;
   res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 
-  res.render('profile.html', { 'debugMode': cfg.get('debugMode'),
-                               'webId': req.session.webId });
+  try {
+    store.getWebIDData(null, function _dataCB(data) {
+      console.log('DATA: ' + JSON.stringify(data));
+      res.render('profile.html', { 'debugMode': cfg.get('debugMode'),
+                                   'webId': req.session.webId,
+                                   'data': JSON.stringify(data) });
+    });
+  } catch (e) {
+    res.render('profile.html', { 'debugMode': cfg.get('debugMode'),
+                                 'webId': req.session.webId });
+  }
+ 
 };
 
 
@@ -304,6 +314,35 @@ var _hasLabel = function _hasLabel(req, content, callback) {
   }
 };
 
+/**
+ * Restful API-function returning all WebIDs the logged-in user has access to.
+
+ * @param   {Object}                  req       A request-object given by connect-rest
+ * @param   {Object}                  content   JSON-parsed HTTP-body of the request
+ * @param   {Function}                callback  Next handler in chain
+ * @returns {Object}                  Returns a call to callback
+ */
+var _getWebIDData = function _getWebIDData(req, content, callback) {
+  var result = null;
+  if (!req.session.webId) {
+
+    result = new Error('Unauthorized!');
+    result.statusCode = 401;
+    callback(result);
+
+  } else {
+    try {
+      store.getWebIDData(null, function _dataCB(data) {
+        return callback(null, data);
+      });
+    } catch (e) {
+      result = new Error(e.message);
+      result.statusCode = 500;
+      callback(result);
+    }
+  }
+};
+
 
 /***********************************************************
  * Main application
@@ -346,6 +385,7 @@ sslApp.use('/profile', _profile);
 
 sslApp.use(rest.rester({ context: '/api' }));       // @todo disable logging
 rest.post('haslabel', _hasLabel, { 'label': 'Some label' });
+rest.get('webids', _getWebIDData);
 sslApp.use('/api/', _notFound);
 
 sslApp.use('/', _profile);

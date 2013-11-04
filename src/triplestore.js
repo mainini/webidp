@@ -210,7 +210,7 @@ exports.TripleStore = (function() {
      * Checks if the given serial has already been assigned to a certificate.
      *
      * @param   {String}        serial      The serial to check
-     * @param   {Function}      callback    Called with true if the label already exists, false otherwise.
+     * @param   {Function}      callback    Called with true if the serial already exists, false otherwise.
      */
     this.serialExists = function serialExists(serial, callback) {
       var sparql = 'SELECT ?serial WHERE { GRAPH <http://webidp.local/idp> { ?cert a <http://webidp.local/vocab#Cert> . ?cert <http://webidp.local/vocab#serial> ?serial . } }';
@@ -229,6 +229,16 @@ exports.TripleStore = (function() {
           throw new Error('An internal error occured, please contact the system administrator!');
         }
       });
+    };
+
+    /**
+     * Retrieves (internal) information about all WebIDs a user has
+     *
+     * @param   {String}        uid         The id of the user of which to retrieve the information, or null to retrieve all
+     * @param   {Function}      callback    Called with an array of JSON-objects representing the WebIDs.
+     */
+    this.getWebIDData = function getWebIDData(uid, callback) {
+      callback([{ name: 'bar', active: false }, { name: 'foo', active:true }]);
     };
 
     /**
