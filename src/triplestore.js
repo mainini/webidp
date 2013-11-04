@@ -192,7 +192,19 @@ exports.TripleStore = (function() {
      * @param   {Function}      callback    Called with true if the label already exists, false otherwise.
      */
     this.serialExists = function serialExists(serial, callback) {
-      callback(false);
+      var sparql = 'SELECT ?serial WHERE { GRAPH <http://webidp.local/idp> { ?cert a <http://webidp.local/vocab#Cert> . ?cert <http://webidp.local/vocab#serial> ?serial . } }';
+      this.store.execute(sparql, function querySuccess(success, results) {
+        var found = false;
+        if (success && results) {
+          for(var i = 0; i < results.length; i++) {
+            if(results[i].serial.value.valueOf() === serial) {
+              found = true;
+              console.log('WARNING: Found duplicate serial - strange!');
+            }
+          }
+          callback(found);
+        }
+      });
     };
 
     /**
