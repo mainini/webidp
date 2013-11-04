@@ -84,6 +84,7 @@ exports.TripleStore = (function() {
         }
       };
 
+      ////////////////////// FOAF-profile in per-user named graph
       var jsonld = {
         '@context': {
           'exp': {
@@ -108,6 +109,7 @@ exports.TripleStore = (function() {
       };
       this.store.load('application/ld+json', jsonld, id.uri, _storeLoad);
 
+      ////////////////////// User profile in named graph <http://webidp.local/idp>
       jsonld = {
         '@id': 'http://webidp.local/users#' + id.uid,
         '@type': 'http://webidp.local/vocab#User',
@@ -117,6 +119,7 @@ exports.TripleStore = (function() {
       };
       this.store.load('application/ld+json', jsonld, 'http://webidp.local/idp', _storeLoad);
 
+      ////////////////////// Certificate details in named graph <http://webidp.local/idp>
       jsonld = {
         '@context': {
           'serial': {
@@ -136,6 +139,7 @@ exports.TripleStore = (function() {
       };
       this.store.load('application/ld+json', jsonld, 'http://webidp.local/idp', _storeLoad);
 
+      ////////////////////// WebID attributes in named graph <http://webidp.local/idp>
       jsonld = {
         '@context': {
           'startValidity': {
