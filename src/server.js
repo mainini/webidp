@@ -191,8 +191,9 @@ var _doLogin = function _doLogin (req, res, next) {
  *
  * @param   {http.IncomingMessage}    req       The incomming request of the user 
  * @param   {http.ServerResponse}     res       The outgoing response of the server
+ * @param   {Function}                next      Next handler in chain
  */
-var _create = function _create(req, res) {
+var _create = function _create(req, res, next) {
   if (req.body.spkac && ! req.session.newId) {
     // @todo check challenge
 
@@ -208,18 +209,22 @@ var _create = function _create(req, res) {
     // self-calling closure repeatedly called if duplicate serial numbers are generated
     var serial;
     var serialGenerator = (function serialGenerator(serialExists) {
-      if (serialExists) {
-        serial = crypto.generateSerial();
-        store.serialExists(serial, serialGenerator);
-      } else {
-        var cert = crypto.createWebIDCertificate(id.full, name, email, req.body.spkac, serial, cfg.get('webid:sha256'));
-        store.addId(id, name, email, req.body.label, cert);
-        req.session.newId = true;
+      try {
+        if (serialExists) {
+          serial = crypto.generateSerial();
+          store.serialExists(serial, serialGenerator);
+        } else {
+          var cert = crypto.createWebIDCertificate(id.full, name, email, req.body.spkac, serial, cfg.get('webid:sha256'));
+          store.addId(id, name, email, req.body.label, cert);
+          req.session.newId = true;
 
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/x-x509-user-cert');
-        res.write(new Buffer(cert.der, 'binary'));
-        res.end();
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'application/x-x509-user-cert');
+          res.write(new Buffer(cert.der, 'binary'));
+          res.end();
+        }
+      } catch (e) {
+        _error(req, res, next, 500, e.message);
       }
     }) (true);
 
