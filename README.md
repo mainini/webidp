@@ -25,4 +25,8 @@ TODOs / Features
   or: let the user enter the data?
 * OCSP/CRL
 
-* <http://www.debian.org/legal/licenses/>
+* Licensing
+    * <http://www.debian.org/legal/licenses/>
+    * <http://dev.perl.org/licenses/>
+    * <http://www.digium.com/en/products/asterisk/licensing>
+    * <http://www.patentattorneys.ch/jahia/Jahia>
