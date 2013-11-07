@@ -259,7 +259,6 @@ var _profile = function _profile (req, res) {
 
   try {
     store.getWebIDData(null, function _dataCB(data) {
-      console.log('DATA: ' + JSON.stringify(data));
       res.render('profile.html', { 'debugMode': cfg.get('debugMode'),
                                    'webId': req.session.webId,
                                    'data': JSON.stringify(data) });
