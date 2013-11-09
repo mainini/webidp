@@ -1,9 +1,18 @@
+/* Overriding stuff from skeleton */
 h1, h2, h3, h4, h5, h6 { font-family: "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif; } 
 
 h1 a, h2 a, h3 a, h4 a, h5 a, h6 a { text-decoration: none; }
 
+.row { margin-bottom: 2px; }
+
+/* Definitions for WebIDP */
+
 .warning { color: red; }
 
-.sparqlarea { width: 100% }
-
 div.hidden { display: none }
+
+.label { font-weight: bold; }
+.active { font-weight: bold; color:green }
+.inactive { font-weight: bold; color:red }
+
+.sparqlarea { width: 100% }

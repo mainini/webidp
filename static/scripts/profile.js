@@ -24,7 +24,8 @@ $(document).ready(function readyFunction()
 {
   // change template tags to avoid conflicts with serverside templating
   _.templateSettings = {
-    interpolate: /\{\{(.+?)\}\}/g
+    evaluate: /\{\{(.+?)\}\}/g,
+    interpolate: /\{\{=(.+?)\}\}/g
   };
 
 //////////////////// models and collections
