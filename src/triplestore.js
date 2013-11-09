@@ -155,7 +155,7 @@ exports.TripleStore = (function() {
         '@id': 'http://webidp.local/webids/' + id.uid + '#' + id.hash,
         '@type': 'http://webidp.local/vocab#WebID',
         'http://webidp.local/vocab#label': label,
-        'http://webidp.local/vocab#profile': id.full,
+        'http://webidp.local/vocab#profile': { '@id': id.full },
         'http://webidp.local/vocab#active': true,
         'startValidity': cert.cert.validity.notBefore.toISOString(),
         'endValidity': cert.cert.validity.notAfter.toISOString(),
@@ -272,6 +272,48 @@ exports.TripleStore = (function() {
           throw new Error('An internal error occured, please contact the system administrator!');
         }
       });
+    };
+
+    /**
+     * Retrieves (internal) information about a user
+     *
+     * @param   {String}        profileUri  The URI of the WebID used by the user to login
+     * @param   {Function}      callback    Called with a JSON-Object containing data about the currently logged in user
+     */
+    this.getUserData = function getUserData(profileURI, callback) {
+      var uid = profileURI.match(/(\/.*)\/(.*)#/)[2];
+      var sparql = 'SELECT * WHERE { GRAPH <http://webidp.local/idp> {' +
+                   '  <http://webidp.local/users#' + uid + '> <http://webidp.local/vocab#name> ?name .' +
+                   '  <http://webidp.local/users#' + uid + '> <http://webidp.local/vocab#email> ?email .' +
+                   '} }';
+      var _store = this.store;
+      _store.execute(sparql, function querySuccess(success, results) {
+        if (success && results) {
+          var userData = { 'uid': uid,
+                     'name': results[0].name.value.valueOf(),
+                     'email': results[0].email.value.valueOf() };
+
+          sparql = 'SELECT * WHERE { GRAPH <http://webidp.local/idp> {' +
+                   '  ?webid <http://webidp.local/vocab#profile> <' + profileURI + '> .' +
+                   '  ?webid <http://webidp.local/vocab#label> ?label .' +
+                   '} }';
+          _store.execute(sparql, function querySuccess(success, results) {
+            if (success && results) {
+              userData.profile = profileURI;
+              userData.label = results[0].label.value.valueOf();
+              callback(userData);
+            } else {
+              console.log('ERROR in querying for user data (success, results): ' + success + ', ' + results);
+              throw new Error('An internal error occured, please contact the system administrator!');
+            }
+          });
+
+        } else {
+          console.log('ERROR in querying for user data (success, results): ' + success + ', ' + results);
+          throw new Error('An internal error occured, please contact the system administrator!');
+        }
+      });
+
     };
 
     /**

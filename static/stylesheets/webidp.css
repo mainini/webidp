@@ -14,5 +14,6 @@ div.hidden { display: none }
 .label { font-weight: bold; }
 .active { font-weight: bold; color:green }
 .inactive { font-weight: bold; color:red }
+.loggedin { font-weight: bold; color:blue }
 
 .sparqlarea { width: 100% }

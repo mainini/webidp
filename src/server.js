@@ -146,6 +146,13 @@ var _doLogin = function _doLogin (req, res, next) {
           // WebID-verification was successful!
 
           req.session.webId = new webid.Foaf(result).parse();
+          try {
+            store.getUserData(req.session.webId.webid, function _dataCB(data) {
+              req.session.userData = data;
+            });
+          } catch (e) {
+            _error(req, res, next, 500, e.message);
+          }
           next();
 
         }, function _verifyError(result) {
@@ -261,7 +268,8 @@ var _profile = function _profile (req, res) {
     store.getWebIDData(null, function _dataCB(data) {
       res.render('profile.html', { 'debugMode': cfg.get('debugMode'),
                                    'webId': req.session.webId,
-                                   'data': JSON.stringify(data) });
+                                   'data': JSON.stringify(data),
+                                   'userData': req.session.userData });
     });
   } catch (e) {
     res.render('profile.html', { 'debugMode': cfg.get('debugMode'),
