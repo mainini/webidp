@@ -14,6 +14,7 @@ TODOs / Features
 * Security Audit (https://www.owasp.org/index.php/Category:OWASP_Top_Ten_Project#OWASP_Top_10_for_2013)
 * Revoken von WebIDs wenn der LDAP-Account nicht mehr existiert?
 * Automated testing / code coverage
+* Disable RC4 / other ciphers
 * PFS
     * <https://tools.ietf.org/html/rfc6460>
     * <http://stackoverflow.com/questions/10185110/key-generation-requirements-for-tls-ecdhe-ecdsa-aes128-gcm-sha256>
