@@ -189,7 +189,10 @@ exports.TripleStore = (function() {
      * @param   {Function}      callback    Called with true if the label already exists, false otherwise.
      */
     this.hasLabel = function hasLabel(id, label, callback) {
-      var sparql = 'SELECT ?label WHERE { GRAPH <http://webidp.local/idp> { <http://webidp.local/users#' + id + '> <http://webidp.local/vocab#webID> ?webid . ?webid  <http://webidp.local/vocab#label> ?label . } }';
+      var sparql = 'SELECT ?label WHERE { GRAPH <http://webidp.local/idp> {' +
+                   '  <http://webidp.local/users#' + id + '> <http://webidp.local/vocab#webID> ?webid .' +
+                   '  ?webid  <http://webidp.local/vocab#label> ?label .' +
+                   '} }';
       this.store.execute(sparql, function querySuccess(success, results) {
         if (success && results) {
           var found = false;
@@ -213,7 +216,10 @@ exports.TripleStore = (function() {
      * @param   {Function}      callback    Called with true if the serial already exists, false otherwise.
      */
     this.serialExists = function serialExists(serial, callback) {
-      var sparql = 'SELECT ?serial WHERE { GRAPH <http://webidp.local/idp> { ?cert a <http://webidp.local/vocab#Cert> . ?cert <http://webidp.local/vocab#serial> ?serial . } }';
+      var sparql = 'SELECT ?serial WHERE { GRAPH <http://webidp.local/idp> {' +
+                   '  ?cert a <http://webidp.local/vocab#Cert> .' +
+                   '  ?cert <http://webidp.local/vocab#serial> ?serial .' +
+                   '} }';
       this.store.execute(sparql, function querySuccess(success, results) {
         if (success && results) {
           var found = false;
@@ -238,7 +244,34 @@ exports.TripleStore = (function() {
      * @param   {Function}      callback    Called with an array of JSON-objects representing the WebIDs.
      */
     this.getWebIDData = function getWebIDData(uid, callback) {
-      callback([{ name: 'bar', active: false }, { name: 'foo', active:true }]);
+      var sparql = 'SELECT * WHERE { GRAPH <http://webidp.local/idp> {' +
+                   '  ?webid a <http://webidp.local/vocab#WebID> .' +
+                   '  ?webid <http://webidp.local/vocab#label> ?label .' +
+                   '  ?webid <http://webidp.local/vocab#profile> ?profile .' +
+                   '  ?webid <http://webidp.local/vocab#active> ?active .' +
+                   '  ?webid <http://webidp.local/vocab#startValidity> ?startValidity .' +
+                   '  ?webid <http://webidp.local/vocab#endValidity> ?endValidity .' +
+                   '  ?webid <http://webidp.local/vocab#cert> ?cert .' +
+                   '  ?cert <http://webidp.local/vocab#serial> ?serial .' +
+                   '} }';
+      this.store.execute(sparql, function querySuccess(success, results) {
+        if (success && results) {
+          var data = [];
+          for(var i = 0; i < results.length; i++) {
+            data.push({ 'label': results[i].label.value.valueOf(),
+                        'profile': results[i].profile.value.valueOf(),
+                        'active': results[i].active.value.valueOf() === 'true',
+                        'startValidity': new Date(results[i].startValidity.value.valueOf()).toUTCString(),
+                        'endValidity': new Date(results[i].endValidity.value.valueOf()).toUTCString(),
+                        'certSerial': results[i].serial.value.valueOf(),
+                      });
+          }
+          callback(data);
+        } else {
+          console.log('ERROR in querying for serial (success, results): ' + success + ', ' + results);
+          throw new Error('An internal error occured, please contact the system administrator!');
+        }
+      });
     };
 
     /**
