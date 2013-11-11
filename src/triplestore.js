@@ -24,6 +24,16 @@ var rdfstore = require('rdfstore'),
   cfg = require('./config.js');
 
 
+var _formatHex = function formatHex(hex) {
+  var result = '';
+  hex = hex.toUpperCase();
+  for(var i=0; i < hex.length-1; i += 2) {
+    result = result + hex[i] + hex[i+1] + ':';
+  }
+  return result.substr(0, result.length-1);
+};
+
+
 /***********************************************************
  * Definition of the TripleStore-singleton
  **********************************************************/
@@ -263,7 +273,7 @@ exports.TripleStore = (function() {
                         'active': results[i].active.value.valueOf() === 'true',
                         'startValidity': new Date(results[i].startValidity.value.valueOf()).toUTCString(),
                         'endValidity': new Date(results[i].endValidity.value.valueOf()).toUTCString(),
-                        'certSerial': results[i].serial.value.valueOf(),
+                        'certSerial': _formatHex(results[i].serial.value.valueOf().toUpperCase()),
                       });
           }
           callback(data);
