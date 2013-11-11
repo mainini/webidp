@@ -5,6 +5,13 @@ h1 a, h2 a, h3 a, h4 a, h5 a, h6 a { text-decoration: none; }
 
 .row { margin-bottom: 2px; }
 
+li {
+    margin-bottom: 5px;
+    border: 1px;
+    border-style: dashed;
+    border-color: lightgray;
+}
+
 /* Definitions for WebIDP */
 
 .warning { color: red; }
@@ -15,5 +22,6 @@ div.hidden { display: none }
 .active { font-weight: bold; color:green }
 .inactive { font-weight: bold; color:red }
 .loggedin { font-weight: bold; color:blue }
+.a_button { font-weight: bold; margin-right:5px; }
 
 .sparqlarea { width: 100% }

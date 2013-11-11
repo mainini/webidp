@@ -10,16 +10,17 @@
       <div>
         <div class="row">
           <div class="one columns"><span class="label">Name:</span></div><div class="five columns">{{= label }}</div>
-          <div class="four columns">
+          <div class="six columns">
             {{ if (active) { print('<span class="active">ACTIVE</span>'); } else { print('<span class="inactive">NOT ACTIVE</span>'); } }}
-            {{ if (profile === '<%= userData.profile %>') { print('<span class="loggedin">LOGGED IN WITH</span>'); } }}
+            {{ if (profile === '<%= userData.profile %>') { print('<span class="loggedin">USED FOR LOGIN</span>'); } }}
           </div>
+          <div class="three columns"> <a href="" class="a_button">[disable]</a><a href="" class="a_button">[delete]</a></div>
         </div>
         <div class="row">
-          <div class="one columns"><span class="label">Validity:</span></div><div class="eight columns">{{= startValidity }} <span class="label">to</span> {{= endValidity }}</div>
+          <div class="one columns"><span class="label">Validity:</span></div><div class="fourteen columns">{{= startValidity }} <span class="label">to</span> {{= endValidity }}</div>
         </div>
         <div class="row">
-          <div class="one columns"><span class="label">Profile:</span></div><div class="fourteen columns"><a href="{{= profile }}">{{= profile.match(/(.*#.{10})/)[1] + ' ... ' + profile.substr(profile.length-10, profile.length)  }}</a></div>
+          <div class="one columns"><span class="label">Profile:</span></div><div class="fourteen columns"><a href="{{= profile }}">{{= profile.match(/(.*#.{14})/)[1] + ' ... ' + profile.substr(profile.length-14, profile.length)  }}</a></div>
         </div>
         <div class="row">
           <div class="one columns"><span class="label">Serial:</span></div><div class="eight columns">{{= certSerial }}</div>
