@@ -103,16 +103,18 @@ var _id = function _id(req, res, next) {
  * @param   {http.ServerResponse}     res       The outgoing response of the server
  */
 var _sparql = function _sparql (req, res) {
-  var result;
-  if (req.body.query) {
-    result = store.query(req.body.query);
-  }
-
   res.statusCode = 200;
   res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 
-  res.render('sparql.html', { 'result': result,
-                              'debugMode': cfg.get('debugMode') });
+  if (req.body.query) {
+    store.query(req.body.query, function _queryResults(result) {
+      res.render('sparql.html', { 'result': result,
+                                  'debugMode': cfg.get('debugMode') });
+    });
+  } else {
+    res.render('sparql.html', { 'result': null,
+                                'debugMode': cfg.get('debugMode') });
+  }
 };
 
 

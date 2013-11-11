@@ -54,7 +54,7 @@ exports.TripleStore = (function() {
      * @param   {String}        sparqlQuery   The query to execute
      * @returns {String}        Either Turtle-formatted RDF, simple triples or an error message
      */
-    this.query = function query(sparqlQuery) {
+    this.query = function query(sparqlQuery, callback) {
       var result;
       this.store.execute(sparqlQuery, function querySuccess(success, results) {
         if (success) {
@@ -73,8 +73,8 @@ exports.TripleStore = (function() {
         } else {
           result = 'An error occured while executing the query!\n\n' + results.toString();
         }
+        callback(result);
       });
-      return result;
     };
 
     /**
