@@ -331,7 +331,7 @@ var _hasLabel = function _hasLabel(req, content, callback) {
  * @param   {Function}                callback  Next handler in chain
  * @returns {Object}                  Returns a call to callback
  */
-var _getWebIDData = function _getWebIDData(req, content, callback) {
+var _getWebIds = function _getWebIds(req, content, callback) {
   var result = null;
   if (!req.session.webId) {
 
@@ -350,6 +350,33 @@ var _getWebIDData = function _getWebIDData(req, content, callback) {
       callback(result);
     }
   }
+};
+
+/**
+ * Restful API-function for updating a WebID
+
+ * @param   {Object}                  req       A request-object given by connect-rest
+ * @param   {Object}                  content   JSON-parsed HTTP-body of the request
+ * @param   {Function}                callback  Next handler in chain
+ * @returns {Object}                  Returns a call to callback
+ */
+var _putWebId = function _putWebId(req, content) {
+  console.log('PUT: ' + req.params.webid);
+  console.log('ACTIVE: ' + content.active);
+  return 'OK';
+};
+
+/**
+ * Restful API-function for deleting a WebID
+
+ * @param   {Object}                  req       A request-object given by connect-rest
+ * @param   {Object}                  content   JSON-parsed HTTP-body of the request
+ * @param   {Function}                callback  Next handler in chain
+ * @returns {Object}                  Returns a call to callback
+ */
+var _deleteWebId = function _deleteWebIds(req, content) {
+  console.log('DELETE: ' + req.params.webid);
+  return 'OK';
 };
 
 
@@ -393,8 +420,10 @@ sslApp.use('/create', _create);
 sslApp.use('/profile', _profile);
 
 sslApp.use(rest.rester({ context: '/api' }));       // @todo disable logging
-rest.post('haslabel', _hasLabel, { 'label': 'Some label' });
-rest.get('webids', _getWebIDData);
+rest.post('haslabel', _hasLabel);
+rest.get('webids', _getWebIds);
+rest.put('webids/:webid', _putWebId);
+rest.del('webids/:webid', _deleteWebId);
 sslApp.use('/api/', _notFound);
 
 sslApp.use('/', _profile);
