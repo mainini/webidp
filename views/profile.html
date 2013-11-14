@@ -14,7 +14,10 @@
             {{ if (active) { print('<span class="active">ACTIVE</span>'); } else { print('<span class="inactive">NOT ACTIVE</span>'); } }}
             {{ if (profile === '<%= userData.profile %>') { print('<span class="loggedin">USED FOR LOGIN</span>'); } }}
           </div>
-          <div class="three columns"> <a href="" class="a_button">[disable]</a><a href="" class="a_button">[delete]</a></div>
+          <div class="three columns">
+            {{ if (active) { print('<a href="#" class="button_disable">[disable]</a>'); } else { print('<a href="#" class="button_disable">[enable]</a>'); } }}
+            <a href="#" class="button_delete">[delete]</a>
+          </div>
         </div>
         <div class="row">
           <div class="one columns"><span class="label">Validity:</span></div><div class="fourteen columns">{{= startValidity }} <span class="label">to</span> {{= endValidity }}</div>

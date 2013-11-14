@@ -30,7 +30,9 @@ $(document).ready(function readyFunction()
 
 //////////////////// models and collections
 
-  var WebID = Backbone.Model.extend({});
+  var WebID = Backbone.Model.extend({
+    idAttribute: 'profile',
+  });
 
   var WebIDList = Backbone.Collection.extend({
     model: WebID,
@@ -44,7 +46,6 @@ $(document).ready(function readyFunction()
 
   var WebIDView = Backbone.View.extend({
     tagName: 'li',
-
     template: _.template($('#webid-template').html()),
 
     initialize: function initialize() {
@@ -53,8 +54,26 @@ $(document).ready(function readyFunction()
       this.render();
     },
 
+    events: {
+      'click a[class="button_disable"] ': '_disable',
+      'click a[class="button_delete"] ': '_delete'
+    },
+
     render: function render() {
       this.$el.html(this.template(this.model.toJSON()));
+    },
+
+    _disable: function _disable(event) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.model.set('active', !this.model.get('active'));
+      this.model.save();
+    },
+
+    _delete: function _delete(event) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.model.destroy();
     }
   });
 
@@ -62,18 +81,18 @@ $(document).ready(function readyFunction()
     el: $('#webidlist'),
 
     initialize: function initialize() {
-      this.listenTo(webids, 'add', this.addOne);
-      this.listenTo(webids, 'reset', this.addAll);
+      this.listenTo(webids, 'add', this._add);
+      this.listenTo(webids, 'reset', this._reset);
       this.listenTo(webids, 'all', this.render);
     },
 
-    addOne: function addOne(webid) {
+    _add: function _add(webid) {
       var view = new WebIDView({model: webid});
       this.$el.append(view.el);
     },
 
-    addAll: function addAll() {
-      webids.each(this.addOne, this);
+    _reset: function _reset() {
+      webids.each(this._add, this);
     },
 
     render: function render() {
@@ -87,16 +106,5 @@ $(document).ready(function readyFunction()
   });
 
   var listView = new WebIDListView();
-  
-//////////////////// Routing
-
-/*  var NavigationRouter = Backbone.Router.extend({
-    initialize: function initialize(options) {
-    }
-  });
-
-  var router = new NavigationRouter();
-  Backbone.history.start(); */
-
   webids.reset($('body').data('webids'));   // populate initially by data written to the template and binded to the body-element...
 });
