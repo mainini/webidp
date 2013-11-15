@@ -30,9 +30,7 @@ $(document).ready(function readyFunction()
 
 //////////////////// models and collections
 
-  var WebID = Backbone.Model.extend({
-    idAttribute: 'profile',
-  });
+  var WebID = Backbone.Model.extend({});
 
   var WebIDList = Backbone.Collection.extend({
     model: WebID,
@@ -106,5 +104,5 @@ $(document).ready(function readyFunction()
   });
 
   var listView = new WebIDListView();
-  webids.reset($('body').data('webids'));   // populate initially by data written to the template and binded to the body-element...
+  webids.fetch();
 });
