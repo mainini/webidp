@@ -151,12 +151,11 @@ var _doLogin = function _doLogin (req, res, next) {
           try {
             store.getUserData(req.session.webId.webid, function _dataCB(data) {
               req.session.userData = data;
+              next();
             });
           } catch (e) {
             _error(req, res, next, 500, e.message);
           }
-          next();
-
         }, function _verifyError(result) {
           // Failed WebID-verification!
 
@@ -265,19 +264,9 @@ var _create = function _create(req, res, next) {
 var _profile = function _profile (req, res) {
   res.statusCode = 200;
   res.setHeader('Content-Type', 'text/html; charset=UTF-8');
-
-  try {
-    store.getWebIDData(null, function _dataCB(data) {
-      res.render('profile.html', { 'debugMode': cfg.get('debugMode'),
-                                   'webId': req.session.webId,
-                                   'data': JSON.stringify(data),
-                                   'userData': req.session.userData });
-    });
-  } catch (e) {
-    res.render('profile.html', { 'debugMode': cfg.get('debugMode'),
-                                 'webId': req.session.webId });
-  }
- 
+  res.render('profile.html', { 'debugMode': cfg.get('debugMode'),
+                               'webId': req.session.webId,
+                               'userData': req.session.userData });
 };
 
 
@@ -341,7 +330,7 @@ var _getWebIds = function _getWebIds(req, content, callback) {
 
   } else {
     try {
-      store.getWebIDData(null, function _dataCB(data) {
+      store.getWebIds(null, function _dataCB(data) {
         return callback(null, data);
       });
     } catch (e) {
@@ -360,10 +349,25 @@ var _getWebIds = function _getWebIds(req, content, callback) {
  * @param   {Function}                callback  Next handler in chain
  * @returns {Object}                  Returns a call to callback
  */
-var _putWebId = function _putWebId(req, content) {
-  console.log('PUT: ' + req.params.webid);
-  console.log('ACTIVE: ' + content.active);
-  return 'OK';
+var _putWebId = function _putWebId(req, content, callback) {
+  var result = null;
+  if (!req.session.webId) {
+
+    result = new Error('Unauthorized!');
+    result.statusCode = 401;
+    callback(result);
+
+  } else {
+    try {
+      store.updateWebId(decodeURIComponent(req.params.webid), content, function _updateCB(result) {
+        return callback(null, result);
+      });
+    } catch (e) {
+      result = new Error(e.message);
+      result.statusCode = 500;
+      callback(result);
+    }
+  }
 };
 
 /**
@@ -374,9 +378,25 @@ var _putWebId = function _putWebId(req, content) {
  * @param   {Function}                callback  Next handler in chain
  * @returns {Object}                  Returns a call to callback
  */
-var _deleteWebId = function _deleteWebIds(req, content) {
-  console.log('DELETE: ' + req.params.webid);
-  return 'OK';
+var _deleteWebId = function _deleteWebIds(req, content, callback) {
+  var result = null;
+  if (!req.session.webId) {
+
+    result = new Error('Unauthorized!');
+    result.statusCode = 401;
+    callback(result);
+
+  } else {
+    try {
+      store.deleteWebId(decodeURIComponent(req.params.webid), function _updateCB(result) {
+        return callback(null, result);
+      });
+    } catch (e) {
+      result = new Error(e.message);
+      result.statusCode = 500;
+      callback(result);
+    }
+  }
 };
 
 
