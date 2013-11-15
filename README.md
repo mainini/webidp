@@ -25,6 +25,7 @@ TODOs / Features
   (for genereting pseudonymous/company-based WebIDs)
   or: let the user enter the data?
 * OCSP/CRL
+* Automated cleanup of expired webids
 
 * Licensing
     * <http://www.debian.org/legal/licenses/>
