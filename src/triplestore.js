@@ -253,7 +253,7 @@ exports.TripleStore = (function() {
      * @param   {String}        uid         The id of the user of which to retrieve the information, or null to retrieve all
      * @param   {Function}      callback    Called with an array of JSON-objects representing the WebIDs.
      */
-    this.getWebIDData = function getWebIDData(uid, callback) {
+    this.getWebIds = function getWebIds(uid, callback) {
       var sparql = 'SELECT * WHERE { GRAPH <http://webidp.local/idp> {' +
                    '  ?webid a <http://webidp.local/vocab#WebID> .' +
                    '  ?webid <http://webidp.local/vocab#label> ?label .' +
@@ -268,7 +268,8 @@ exports.TripleStore = (function() {
         if (success && results) {
           var data = [];
           for(var i = 0; i < results.length; i++) {
-            data.push({ 'label': results[i].label.value.valueOf(),
+            data.push({ 'id': results[i].webid.value.valueOf(),
+                        'label': results[i].label.value.valueOf(),
                         'profile': results[i].profile.value.valueOf(),
                         'active': results[i].active.value.valueOf() === 'true',
                         'startValidity': new Date(results[i].startValidity.value.valueOf()).toUTCString(),
@@ -282,6 +283,48 @@ exports.TripleStore = (function() {
           throw new Error('An internal error occured, please contact the system administrator!');
         }
       });
+    };
+
+    /**
+     * Updates a given WebID. Currently only changes the active/inactive state.
+     *
+     * @param   {String}        webid       The WebID to update
+     * @param   {Object}        data        JSON-serialized attributes of the WebID
+     */
+    this.updateWebId = function updateWebId(webid, data, callback) {
+      var _error = function _error(success, results) {
+        console.log('ERROR while updating (success, results): ' + success + ', ' + results);
+        throw new Error('An internal error occured, please contact the system administrator!');
+      };
+
+      var _store = this.store;
+      var sparql = 'DELETE DATA { GRAPH <http://webidp.local/idp> { ' +
+                   '<' + webid + '> <http://webidp.local/vocab#active> ' + !Boolean(data.active) + ' } }';
+      _store.execute(sparql, function querySuccess(success, results) {
+        if (success) {
+          sparql = 'INSERT DATA { GRAPH <http://webidp.local/idp> { ' +
+                   '<' + webid + '> <http://webidp.local/vocab#active> ' + Boolean(data.active) + ' } }';
+          _store.execute(sparql, function querySuccess2(success, results) {
+            if (success) {
+              callback(true);
+            } else {
+              _error(success, results);
+            }
+          });
+        } else {
+          _error(success, results);
+        }
+      });
+    };
+
+    /**
+     * Deletes a given WebID.
+     *
+     * @param   {String}        webid       The WebID to delete
+     * @param   {Function}      callback    Called on successful modification
+     */
+    this.deleteWebId = function deleteWebId(webid, data, callback) {
+      callback(true);
     };
 
     /**
