@@ -7,7 +7,7 @@
     <div class="sixteen columns">
       <form method="post" action="/sparql">
         <label for="query">SPARQL query</label>
-        <textarea class="sparqlarea" rows="5" name="query">CONSTRUCT { ?s ?p ?o } WHERE { GRAPH <https://localhost:8443/id/test> { ?s ?p ?o } }</textarea>
+        <textarea class="sparqlarea" rows="5" name="query">CONSTRUCT { ?s ?p ?o } WHERE { GRAPH <http://webidp.local/idp> { ?s ?p ?o } }</textarea>
         <p>Note: when using SELECT-query, only ?s, ?p and ?o will be returned in the result!</p>
         <input type="submit" name="submit" value="Submit!">
       </form>
