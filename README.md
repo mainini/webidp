@@ -26,6 +26,7 @@ TODOs / Features
   or: let the user enter the data?
 * OCSP/CRL
 * Automated cleanup of expired webids
+* Session-locking
 
 * Licensing
     * <http://www.debian.org/legal/licenses/>
