@@ -19,7 +19,7 @@
           <div class="one columns"><span class="label">Validity:</span></div><div class="fourteen columns">{{= startValidity }} <span class="label">to</span> {{= endValidity }}</div>
         </div>
         <div class="row">
-          <div class="one columns"><span class="label">Profile:</span></div><div class="fourteen columns"><a href="{{= profile }}">{{= profile.match(/(.*#.{14})/)[1] + ' ... ' + profile.substr(profile.length-14, profile.length)  }}</a></div>
+          <div class="one columns"><span class="label">Profile:</span></div><div class="fourteen columns"><a href="{{= profile }}">{{ var m = profile.match(/(.*)\/(.*)#(.*)/); print(m[1] + '/' + m[2].substr(0,14)  + ' ... ' + m[2].substr(m[2].length-14, m[2].length) + '#' + m[3]);  }}</a></div>
         </div>
         <div class="row">
           <div class="one columns"><span class="label">Serial:</span></div><div class="eight columns">{{= certSerial }}</div>

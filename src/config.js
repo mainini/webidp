@@ -53,7 +53,7 @@ cfg.defaults({
   'webid': {
     'subject': {},
     'sha256': true,
-    'fragment': 'id',
+    'fragment': 'profile',
     'validityStart': DEFAULT_VALIDITY_START,
     'validityEnd': DEFAULT_VALIDITY_END
   },
@@ -88,7 +88,11 @@ module.exports.get = function get(key) {
  * @returns {String}      The full URI for a given UID, without the fragment identifier
  */
 var getIdUri = function getIdUri(uid) {
-  return 'https://' + cfg.get('server:fqdn') + ':' + cfg.get('server:port') + '/id/' + uid;
+  if (uid) {
+    return 'https://' + cfg.get('server:fqdn') + ':' + cfg.get('server:port') + '/id/' + uid;
+  } else {
+    return 'https://' + cfg.get('server:fqdn') + ':' + cfg.get('server:port') + '/id/';
+  }
 };
 module.exports.getIdUri = getIdUri;
 

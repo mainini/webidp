@@ -210,9 +210,10 @@ var _create = function _create(req, res, next) {
     var email = req.session.user.email;
 
     var id = { 'uid': uid,
-               'uri': cfg.getIdUri(uid),
                'hash': crypto.sha256(req.body.label) };
-    id.full = id.uri + '#' + id.hash;
+    id.uri = cfg.getIdUri(uid) + '/' + id.hash;
+    id.fragment = cfg.get('webid:fragment');
+    id.full = id.uri + '#' + id.fragment;
 
     // self-calling closure repeatedly called if duplicate serial numbers are generated
     var serial;

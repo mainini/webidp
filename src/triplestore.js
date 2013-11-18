@@ -125,7 +125,7 @@ exports.TripleStore = (function() {
         '@type': 'http://webidp.local/vocab#User',
         'http://webidp.local/vocab#name': name,
         'http://webidp.local/vocab#email': email,
-        'http://webidp.local/vocab#webID': { '@id': 'http://webidp.local/webids/' + id.uid + '#' + id.hash }
+        'http://webidp.local/vocab#webID': { '@id': 'http://webidp.local/webids/' + id.uid + '/' + id.hash }
       };
       this.store.load('application/ld+json', jsonld, 'http://webidp.local/idp', _storeLoad);
 
@@ -162,7 +162,7 @@ exports.TripleStore = (function() {
           }
         },
 
-        '@id': 'http://webidp.local/webids/' + id.uid + '#' + id.hash,
+        '@id': 'http://webidp.local/webids/' + id.uid + '/' + id.hash,
         '@type': 'http://webidp.local/vocab#WebID',
         'http://webidp.local/vocab#label': label,
         'http://webidp.local/vocab#profile': { '@id': id.full },
@@ -181,7 +181,7 @@ exports.TripleStore = (function() {
      * @param   {Function}      callback    Called with the Turtle-data
      */
     this.getId = function getId(id, callback) {
-      this.store.graph(cfg.getIdUri(id), function(success, results){
+      this.store.graph(cfg.getIdUri() + id, function(success, results){
         if (success && results) {
           callback(results.toNT());
         } else {
@@ -334,7 +334,7 @@ exports.TripleStore = (function() {
      * @param   {Function}      callback    Called with a JSON-Object containing data about the currently logged in user
      */
     this.getUserData = function getUserData(profileURI, callback) {
-      var uid = profileURI.match(/(\/.*)\/(.*)#/)[2];
+      var uid = profileURI.match(/(\/.*)\/(.*)\/(.*)#/)[2];
       var sparql = 'SELECT * WHERE { GRAPH <http://webidp.local/idp> {' +
                    '  <http://webidp.local/users#' + uid + '> <http://webidp.local/vocab#name> ?name .' +
                    '  <http://webidp.local/users#' + uid + '> <http://webidp.local/vocab#email> ?email .' +
