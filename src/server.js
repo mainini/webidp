@@ -88,7 +88,11 @@ var _id = function _id(req, res, next) {
       _notFound(req, res, next);
     } else {
       res.statusCode = 200;
-      res.setHeader('Content-Type', 'text/turtle; charset=UTF-8');
+      if (req.headers.accept.match(/^text\/html/)) {
+        res.setHeader('Content-Type', 'text/plain; charset=UTF-8');
+      } else {
+        res.setHeader('Content-Type', 'text/turtle; charset=UTF-8');
+      }
       res.end(content);
     }
   });
@@ -431,7 +435,7 @@ if (cfg.get('debugMode')) {
 }
 
 sslApp.use('/static', connect.static('static'));
-sslApp.use('/id', _id);             // @feature Content-negotiation if retrieved by human
+sslApp.use('/id', _id);
 
 // Everything below is authenticated!
 sslApp.use('/', _doLogin);
