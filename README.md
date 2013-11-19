@@ -27,6 +27,7 @@ TODOs / Features
 * OCSP/CRL
 * Automated cleanup of expired webids
 * Session-locking
+* Label part of WebID?
 
 * Licensing
     * <http://www.debian.org/legal/licenses/>
