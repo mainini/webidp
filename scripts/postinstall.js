@@ -44,7 +44,7 @@ var EXTERNAL_FILES = [
  */
 var _fetchDone = function _fetchDone () {
   console.log('Done fetching files!');
-  console.log('rswiki postinstall script finished!');
+  console.log('WebIDP postinstall script finished!');
 };
 
 /**
