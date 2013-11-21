@@ -211,10 +211,9 @@ exports.TripleStore = (function() {
               found = true;
             }
           }
-          callback(found);
+          callback(null, found);
         } else {
-          console.log('ERROR in querying for label (success, results): ' + success + ', ' + results);
-          throw 'An internal error occured, please contact the system administrator!';  // Error gets returned to the client by AJAX, thus not throwing an Error to avoid displaying of stacktrace...
+          callback('ERROR while querying for label!', { success: success, results: results });
         }
       });
     };

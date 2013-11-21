@@ -290,31 +290,35 @@ var _profile = function _profile (req, res) {
  * @returns {Object}                  Returns a call to callback
  */
 var _hasLabel = function _hasLabel(req, content, callback) {
-  var result = null;
   if (!req.session || !req.session.user || ! req.session.user.uid) {
-
-    result = new Error('Unauthorized!');
-    result.statusCode = 401;
-
+    callback(null, { error: 'Unauthorized!' }, { statusCode: 401 });
   } else {
-
     if (content.label) {
       if (content.label.toString().match(/[^A-Za-z0-9_\s\-]/g)) {
-        result = new Error('Invalid character in label!');
-        result.statusCode = 400;
+        callback(null, { error: 'Invalid character in label!' }, {statusCode: 400});
       } else {
-        store.hasLabel(req.session.user.uid, content.label, function _labelCB(status) {
-          return callback(null, { status: status });
-        });
+        async.waterfall([
+          function _checkLabel(cb) {
+            store.hasLabel(req.session.user.uid, content.label, cb);
+          },
+          function _restResult(result) {
+            callback(null, { status: result });
+          }
+        ], function _err(err, result) {
+            console.log('ERROR occured in _hasLabel()! Message was: ' + err);
+            console.log('(success, results): ' + result.success + ', ' + result.results);
+
+            if (cfg.get('debugMode')) {
+              callback(null, { error: 'Error: ' + err + ', result: ' + JSON.stringify(result) }, { statusCode: 500 });
+            } else {
+              callback(null, { error: 'Internal server error!' }, { statusCode: 500 });
+            }
+          }
+        );
       }
     } else {
-      result = new Error('Missing/invalid argument!');
-      result.statusCode = 400;
+      callback(null, 'Missing/invalid argument!', { statusCode: 400 });
     }
-  }
-
-  if (result !== null) {      // preventing that the response gets sent out if the callback has already been returned above
-    return callback(result);
   }
 };
 
@@ -357,7 +361,7 @@ var _getWebIds = function _getWebIds(req, content, callback) {
  */
 var _putWebId = function _putWebId(req, content, callback) {
   if (!req.session.webId) {
-    callback(null, 'Unauthorized!', {statusCode: 401});
+    callback(null, { error: 'Unauthorized!' }, { statusCode: 401 });
   } else {
     async.waterfall([
       function _update(cb) {
@@ -371,9 +375,9 @@ var _putWebId = function _putWebId(req, content, callback) {
         console.log('(success, results): ' + result.success + ', ' + result.results);
 
         if (cfg.get('debugMode')) {
-          callback(null, {error: err, result: result, active: !content.active }, {statusCode: 500});
+          callback(null, { error: err, result: result, active: !content.active }, { statusCode: 500 });
         } else {
-          callback(null, {error: 'Internal server error!', active: !content.active }, {statusCode: 500});
+          callback(null, { error: 'Internal server error!', active: !content.active }, { statusCode: 500 });
         }
       }
     );

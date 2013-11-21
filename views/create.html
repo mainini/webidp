@@ -16,9 +16,9 @@
               $("#result").show();
               $("#keygenForm").submit();
             }
-          }).fail(function (jqXHR, textStatus) {
+          }).fail(function (xhr, textStatus) {
             $("#errorMessage").empty();
-            $("#errorMessage").append(jqXHR.responseText);
+            $("#errorMessage").append(JSON.parse(xhr.responseText).error);
             $("#errorDiv").show();
           });
         });
