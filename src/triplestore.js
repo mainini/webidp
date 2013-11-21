@@ -196,7 +196,8 @@ exports.TripleStore = (function() {
      *
      * @param   {Object}        id          UID of the WebID
      * @param   {Object}        label       The label to check for
-     * @param   {Function}      callback    Called with true if the label already exists, false otherwise.
+     * @param   {Function}      callback    Called with two params: error and result. 
+     *                                      error is null if everything went fine and the result of the check is in result (true/false)
      */
     this.hasLabel = function hasLabel(id, label, callback) {
       var sparql = 'SELECT ?label WHERE { GRAPH <http://webidp.local/idp> {' +
@@ -223,7 +224,7 @@ exports.TripleStore = (function() {
      *
      * @param   {String}        serial      The serial to check
      * @param   {Function}      callback    Called with two params: error and result. 
-     *                                      Error is null if everything went fine and the result of the check is in result (true/false)
+     *                                      error is null if everything went fine and the result of the check is in result (true/false)
      */
     this.serialExists = function serialExists(serial, callback) {
       var sparql = 'SELECT ?serial WHERE { GRAPH <http://webidp.local/idp> {' +
@@ -289,6 +290,8 @@ exports.TripleStore = (function() {
      *
      * @param   {String}        webid       The WebID to update
      * @param   {Object}        data        JSON-serialized attributes of the WebID
+     * @param   {Function}      callback    Called with two params: error and result. 
+     *                                      error and result are null/undefined if everything went fine.
      */
     this.updateWebId = function updateWebId(webid, data, callback) {
       var _store = this.store;
