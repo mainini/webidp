@@ -18,7 +18,7 @@
  */
 
 /*jshint jquery:true, bitwise:true, curly:true, immed:true, indent:2, latedef:true, newcap:true, noarg: true, noempty:true, nonew:true, quotmark:single, undef:true, unused: true, trailing:true, white:false */
-/*global document:true, _:true, Backbone: true */
+/*global document:true, _:true, Backbone: true, alert:true */
 
 $(document).ready(function readyFunction()
 {
@@ -49,6 +49,7 @@ $(document).ready(function readyFunction()
     initialize: function initialize() {
       this.listenTo(this.model, 'change', this.render);
       this.listenTo(this.model, 'destroy', this.remove);
+      this.listenTo(this.model, 'error', this._error);
       this.render();
     },
 
@@ -72,6 +73,15 @@ $(document).ready(function readyFunction()
       event.preventDefault();
       event.stopPropagation();
       this.model.destroy();
+    },
+
+    _error: function _error(model, xhr) {
+      // interestingly, this also gets triggered on successful responses...
+      if (xhr.status !== 200) {
+        var response= JSON.parse(xhr.responseText);
+        this.model.set('active', response.active);
+        alert(response.error);
+      }
     }
   });
 

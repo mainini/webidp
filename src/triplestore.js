@@ -292,27 +292,43 @@ exports.TripleStore = (function() {
      * @param   {Object}        data        JSON-serialized attributes of the WebID
      */
     this.updateWebId = function updateWebId(webid, data, callback) {
-      var _error = function _error(success, results) {
-        console.log('ERROR while updating (success, results): ' + success + ', ' + results);
-        throw new Error('An internal error occured, please contact the system administrator!');
-      };
-
       var _store = this.store;
       var sparql = 'DELETE DATA { GRAPH <http://webidp.local/idp> { ' +
                    '<' + webid + '> <http://webidp.local/vocab#active> ' + !Boolean(data.active) + ' } }';
       _store.execute(sparql, function querySuccess(success, results) {
         if (success) {
+          // DELETEd old state successfully
+
           sparql = 'INSERT DATA { GRAPH <http://webidp.local/idp> { ' +
                    '<' + webid + '> <http://webidp.local/vocab#active> ' + Boolean(data.active) + ' } }';
           _store.execute(sparql, function querySuccess2(success, results) {
             if (success) {
-              callback(true);
+              // INSERTed new state successfully, we're done!
+
+              callback(null);
+
             } else {
-              _error(success, results);
+              // INSERT failed, try to recover
+
+              var jsonld = {
+                '@id': webid,
+                'http://webidp.local/vocab#active': !Boolean(data.active)
+              };
+              _store.load('application/ld+json', jsonld, 'http://webidp.local/idp', function loadSuccess(success, results) {
+                if (!success) {
+                  // we only log this error as the callback has already returned and no new information
+                  // would be given to the caller. Otherwise we would also have to implement it using async.waterfall...
+                  console.log('ERROR encountered additionally while trying to recover state! (success, error): ' + success + ', ' + results);
+                }
+              });
+              callback('ERROR while INSERTing state!', { success: success, results: results });
             }
           });
+
         } else {
-          _error(success, results);
+          // DELETE failed
+
+          callback('ERROR while DELETEing state!', { success: success, results: results });
         }
       });
     };
