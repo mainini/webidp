@@ -20,7 +20,7 @@
 /*jshint jquery:true, bitwise:true, curly:true, immed:true, indent:2, latedef:true, newcap:true, noarg: true, noempty:true, nonew:true, quotmark:single, undef:true, unused: true, trailing:true, white:false */
 /*global document:true, _:true, Backbone: true, alert:true */
 
-$(document).ready(function readyFunction()
+$(document).ready(function _ready()
 {
   // change template tags to avoid conflicts with serverside templating
   _.templateSettings = {

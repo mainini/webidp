@@ -222,11 +222,11 @@ var _create = function _create(req, res, next) {
 
     // self-calling closure repeatedly called if duplicate serial numbers are generated
     var serial;
-    var serialGenerator = (function serialGenerator(serialExists) {
+    var serialGenerator = (function _serialGenerator(serialExists) {
       try {
         if (serialExists) {
           serial = crypto.generateSerial();
-          store.serialExists(serial, serialGenerator);
+          store.serialExists(serial, _serialGenerator);
         } else {
           var cert = crypto.createWebIDCertificate(id.full, name, email, req.body.spkac, serial, cfg.get('webid:sha256'));
           store.addId(id, name, email, req.body.label, cert);

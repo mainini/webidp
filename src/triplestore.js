@@ -24,7 +24,7 @@ var rdfstore = require('rdfstore'),
   cfg = require('./config.js');
 
 
-var _formatHex = function formatHex(hex) {
+var _formatHex = function _formatHex(hex) {
   var result = '';
   hex = hex.toUpperCase();
   for(var i=0; i < hex.length-1; i += 2) {
@@ -46,7 +46,7 @@ exports.TripleStore = (function() {
   /**
    * Private singleton instance
    */
-  function PrivateConstructor() {
+  function _PrivateConstructor() {
 
     /**
      * Executes a SPARQL-query on the store.
@@ -56,7 +56,7 @@ exports.TripleStore = (function() {
      */
     this.query = function query(sparqlQuery, callback) {
       var result;
-      this.store.execute(sparqlQuery, function querySuccess(success, results) {
+      this.store.execute(sparqlQuery, function _querySuccess(success, results) {
         if (success) {
           if (sparqlQuery.match(/SELECT/i)) {
             for(var i = 0; i < results.length; i++) {
@@ -181,7 +181,7 @@ exports.TripleStore = (function() {
      * @param   {Function}      callback    Called with the Turtle-data
      */
     this.getId = function getId(id, callback) {
-      this.store.graph(cfg.getIdUri() + id, function(success, results){
+      this.store.graph(cfg.getIdUri() + id, function _querySuccess(success, results){
         if (success && results) {
           callback(results.toNT());
         } else {
@@ -203,7 +203,7 @@ exports.TripleStore = (function() {
                    '  <http://webidp.local/users#' + id + '> <http://webidp.local/vocab#webID> ?webid .' +
                    '  ?webid  <http://webidp.local/vocab#label> ?label .' +
                    '} }';
-      this.store.execute(sparql, function querySuccess(success, results) {
+      this.store.execute(sparql, function _querySuccess(success, results) {
         if (success && results) {
           var found = false;
           for(var i = 0; i < results.length; i++) {
@@ -230,7 +230,7 @@ exports.TripleStore = (function() {
                    '  ?cert a <http://webidp.local/vocab#Cert> .' +
                    '  ?cert <http://webidp.local/vocab#serial> ?serial .' +
                    '} }';
-      this.store.execute(sparql, function querySuccess(success, results) {
+      this.store.execute(sparql, function _querySuccess(success, results) {
         if (success && results) {
           var found = false;
           for(var i = 0; i < results.length; i++) {
@@ -264,7 +264,7 @@ exports.TripleStore = (function() {
                    '  ?webid <http://webidp.local/vocab#cert> ?cert .' +
                    '  ?cert <http://webidp.local/vocab#serial> ?serial .' +
                    '} }';
-      this.store.execute(sparql, function querySuccess(success, results) {
+      this.store.execute(sparql, function _querySuccess(success, results) {
         if (success && results) {
           var data = [];
           for(var i = 0; i < results.length; i++) {
@@ -295,13 +295,13 @@ exports.TripleStore = (function() {
       var _store = this.store;
       var sparql = 'DELETE DATA { GRAPH <http://webidp.local/idp> { ' +
                    '<' + webid + '> <http://webidp.local/vocab#active> ' + !Boolean(data.active) + ' } }';
-      _store.execute(sparql, function querySuccess(success, results) {
+      _store.execute(sparql, function _querySuccess(success, results) {
         if (success) {
           // DELETEd old state successfully
 
           sparql = 'INSERT DATA { GRAPH <http://webidp.local/idp> { ' +
                    '<' + webid + '> <http://webidp.local/vocab#active> ' + Boolean(data.active) + ' } }';
-          _store.execute(sparql, function querySuccess2(success, results) {
+          _store.execute(sparql, function _querySuccess2(success, results) {
             if (success) {
               // INSERTed new state successfully, we're done!
 
@@ -314,7 +314,7 @@ exports.TripleStore = (function() {
                 '@id': webid,
                 'http://webidp.local/vocab#active': !Boolean(data.active)
               };
-              _store.load('application/ld+json', jsonld, 'http://webidp.local/idp', function loadSuccess(success, results) {
+              _store.load('application/ld+json', jsonld, 'http://webidp.local/idp', function _loadSuccess(success, results) {
                 if (!success) {
                   // we only log this error as the callback has already returned and no new information
                   // would be given to the caller. Otherwise we would also have to implement it using async.waterfall...
@@ -356,7 +356,7 @@ exports.TripleStore = (function() {
                    '  <http://webidp.local/users#' + uid + '> <http://webidp.local/vocab#email> ?email .' +
                    '} }';
       var _store = this.store;
-      _store.execute(sparql, function querySuccess(success, results) {
+      _store.execute(sparql, function _querySuccess(success, results) {
         if (success && results) {
           var userData = { 'uid': uid,
                      'name': results[0].name.value.valueOf(),
@@ -366,7 +366,7 @@ exports.TripleStore = (function() {
                    '  ?webid <http://webidp.local/vocab#profile> <' + profileURI + '> .' +
                    '  ?webid <http://webidp.local/vocab#label> ?label .' +
                    '} }';
-          _store.execute(sparql, function querySuccess(success, results) {
+          _store.execute(sparql, function _querySuccess(success, results) {
             if (success && results) {
               userData.profile = profileURI;
               userData.label = results[0].label.value.valueOf();
@@ -388,7 +388,7 @@ exports.TripleStore = (function() {
     /**
      * Sets up the store in-memory or using a MongoDB - depending on the configuration.
      */
-    this.initialiseStore = function _initialiseStore() {
+    this._initialiseStore = function _initialiseStore() {
       var _storeReady = function _storeReady(store) {
         instance.store = store;
       };
@@ -422,9 +422,9 @@ exports.TripleStore = (function() {
      */
     this.getInstance = function getInstance() {
       if (instance === null) {
-        instance = new PrivateConstructor();
+        instance = new _PrivateConstructor();
         instance.constructor = null;
-        instance.initialiseStore();
+        instance._initialiseStore();
       }
       return instance;
     };
