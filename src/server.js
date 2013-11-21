@@ -222,9 +222,12 @@ var _create = function _create(req, res, next) {
 
     // self-calling closure repeatedly called if duplicate serial numbers are generated
     var serial;
-    var serialGenerator = (function _serialGenerator(serialExists) {
-      try {
-        if (serialExists) {
+    var serialGenerator = (function _serialGenerator(error, result) {
+      if (error) {
+        _error(req, res, next, 500, error);
+      } else {
+        if (result) {
+          // serial exists, try again...
           serial = crypto.generateSerial();
           store.serialExists(serial, _serialGenerator);
         } else {
@@ -237,10 +240,8 @@ var _create = function _create(req, res, next) {
           res.write(new Buffer(cert.der, 'binary'));
           res.end();
         }
-      } catch (e) {
-        _error(req, res, next, 500, e.message);
       }
-    }) (true);
+    }) (null, true);
 
   } else {
 

@@ -222,7 +222,8 @@ exports.TripleStore = (function() {
      * Checks if the given serial has already been assigned to a certificate.
      *
      * @param   {String}        serial      The serial to check
-     * @param   {Function}      callback    Called with true if the serial already exists, false otherwise.
+     * @param   {Function}      callback    Called with two params: error and result. 
+     *                                      Error is null if everything went fine and the result of the check is in result (true/false)
      */
     this.serialExists = function serialExists(serial, callback) {
       var sparql = 'SELECT ?serial WHERE { GRAPH <http://webidp.local/idp> {' +
@@ -238,10 +239,9 @@ exports.TripleStore = (function() {
               console.log('WARNING: Found duplicate serial - strange!');
             }
           }
-          callback(found);
+          callback(null, found);
         } else {
-          console.log('ERROR in querying for serial (success, results): ' + success + ', ' + results);
-          throw new Error('An internal error occured, please contact the system administrator!');
+          callback('ERROR while querying for serial!', { success: success, results: results });
         }
       });
     };
