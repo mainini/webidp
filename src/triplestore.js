@@ -251,7 +251,8 @@ exports.TripleStore = (function() {
      * Retrieves (internal) information about all WebIDs a user has
      *
      * @param   {String}        uid         The id of the user of which to retrieve the information, or null to retrieve all
-     * @param   {Function}      callback    Called with an array of JSON-objects representing the WebIDs.
+     * @param   {Function}      callback    Called with two params: error and result. 
+     *                                      error if something bad happened, null otherwise and results containing an array of WebIDs
      */
     this.getWebIds = function getWebIds(uid, callback) {
       var sparql = 'SELECT * WHERE { GRAPH <http://webidp.local/idp> {' +
@@ -277,10 +278,9 @@ exports.TripleStore = (function() {
                         'certSerial': _formatHex(results[i].serial.value.valueOf().toUpperCase()),
                       });
           }
-          callback(data);
+          callback(null, data);
         } else {
-          console.log('ERROR in querying for serial (success, results): ' + success + ', ' + results);
-          throw new Error('An internal error occured, please contact the system administrator!');
+          callback('ERROR while querying for the webids!', { success: success, results: results });
         }
       });
     };

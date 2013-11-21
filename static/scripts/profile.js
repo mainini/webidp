@@ -114,5 +114,8 @@ $(document).ready(function _ready()
   });
 
   var listView = new WebIDListView();
-  webids.fetch();
+  webids.fetch({error: function _fetchError(model, xhr) {
+    var response= JSON.parse(xhr.responseText);
+    alert(response.error);
+  }});
 });

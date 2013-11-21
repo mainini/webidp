@@ -332,23 +332,27 @@ var _hasLabel = function _hasLabel(req, content, callback) {
  * @returns {Object}                  Returns a call to callback
  */
 var _getWebIds = function _getWebIds(req, content, callback) {
-  var result = null;
   if (!req.session.webId) {
-
-    result = new Error('Unauthorized!');
-    result.statusCode = 401;
-    callback(result);
-
+    callback(null, { error: 'Unauthorized!' }, { statusCode: 401 });
   } else {
-    try {
-      store.getWebIds(null, function _dataCB(data) {
-        return callback(null, data);
-      });
-    } catch (e) {
-      result = new Error(e.message);
-      result.statusCode = 500;
-      callback(result);
-    }
+    async.waterfall([
+      function _getWebIds(cb) {
+        store.getWebIds(null, cb);
+      },
+      function _restResult(result) {
+        callback(null, result);
+      }
+    ], function _err(err, result) {
+        console.log('ERROR occured in _getWebIds()! Message was: ' + err);
+        console.log('(success, results): ' + result.success + ', ' + result.results);
+
+        if (cfg.get('debugMode')) {
+          callback(null, { error: err, result: result }, { statusCode: 500 });
+        } else {
+          callback(null, { error: 'Internal server error!' }, { statusCode: 500 });
+        }
+      }
+    );
   }
 };
 
