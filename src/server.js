@@ -84,17 +84,28 @@ var _notFound = function _notFound(req, res, next) {
  * @param   {Function}                next      Next handler in chain
  */
 var _id = function _id(req, res, next) {
-  store.getId(req.url.substr(1), function _gotId(content) {
-    if (content.length === 0) {
-      _notFound(req, res, next);
-    } else {
-      res.statusCode = 200;
-      if (req.headers.accept.match(/^text\/html/)) {
-        res.setHeader('Content-Type', 'text/plain; charset=UTF-8');
+  store.getId(req.url.substr(1), function _gotId(error, result) {
+    if (error) {
+      console.log('ERROR occured in _id()! Message was: ' + error);
+      console.log('(success, results): ' + result.success + ', ' + result.results);
+
+      if (cfg.get('debugMode')) {
+        _error(req, res, next, 500, error + ' | success: ' + result.success + ', results: ' + result.results);
       } else {
-        res.setHeader('Content-Type', 'text/turtle; charset=UTF-8');
+        _error(req, res, next, 500, 'Internal server error!');
       }
-      res.end(content);
+    } else {
+      if (result === null || result.length === 0) {
+        _notFound(req, res, next);
+      } else {
+        res.statusCode = 200;
+        if (req.headers.accept.match(/^text\/html/)) {
+          res.setHeader('Content-Type', 'text/plain; charset=UTF-8');
+        } else {
+          res.setHeader('Content-Type', 'text/turtle; charset=UTF-8');
+        }
+        res.end(result);
+      }
     }
   });
 };

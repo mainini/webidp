@@ -181,12 +181,29 @@ exports.TripleStore = (function() {
      * @param   {Function}      callback    Called with the Turtle-data
      */
     this.getId = function getId(id, callback) {
-      this.store.graph(cfg.getIdUri() + id, function _querySuccess(success, results){
-        if (success && results) {
-          callback(results.toNT());
+      var profile = cfg.getIdUri() + id;
+      var sparql = 'SELECT * WHERE { GRAPH <http://webidp.local/idp> {' +
+                   '  ?webid <http://webidp.local/vocab#profile> <' + profile + '#' + cfg.get('webid:fragment') + '> .' +
+                   '  ?webid <http://webidp.local/vocab#active> ?active .' +
+                   '  } }';
+      var _store = this.store;
+      _store.execute(sparql, function _querySuccess(success, results) {
+        if (success) {
+          if (results.length === 0) {
+            callback(null, null);
+          } else if (results[0].active.value.valueOf() === 'true') {
+            _store.graph(profile, function _querySuccess(success, results){
+              if (success && results) {
+                callback(null, results.toNT());
+              } else {
+                callback('ERROR while querying for the webid!', { success: success, results: results });
+              }
+            });
+          } else {
+            callback(null, null);
+          }
         } else {
-          console.log('ERROR in querying for the WebID (success, results): ' + success + ', ' + results);
-          callback('An internal error occured, please contact the system administrator!');
+          callback('ERROR while checking the status of the webid!', { success: success, results: results });
         }
       });
     };
