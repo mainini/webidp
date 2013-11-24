@@ -28,6 +28,7 @@ TODOs / Features
 * Automated cleanup of expired webids
 * Session-locking
 * Label part of WebID?
+* Proper MIME-handling for errors and /id
 
 * Licensing
     * <http://www.debian.org/legal/licenses/>
