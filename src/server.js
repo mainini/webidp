@@ -351,7 +351,15 @@ var _getWebIds = function _getWebIds(req, content, callback) {
         store.getWebIds(null, cb);
       },
       function _restResult(result) {
-        callback(null, result);
+        var ids = _.map(result, function _mapper(webid) {
+          if(webid.profile === req.session.webId.webid) {
+            webid.login = true;
+          } else {
+            webid.login = false;
+          }
+          return webid;
+        });
+        callback(null, ids);
       }
     ], function _err(err, result) {
         console.log('ERROR occured in _getWebIds()! Message was: ' + err);
