@@ -18,7 +18,7 @@
  */
 
 /*jshint jquery:true, bitwise:true, curly:true, immed:true, indent:2, latedef:true, newcap:true, noarg: true, noempty:true, nonew:true, quotmark:single, undef:true, unused: true, trailing:true, white:false */
-/*global document:true, _:true, Backbone: true, alert:true */
+/*global document:true, _:true, Backbone: true, alert:true, confirm:true */
 
 $(document).ready(function _ready()
 {
@@ -39,6 +39,17 @@ $(document).ready(function _ready()
 
   var webids = new WebIDList();
 
+
+  var _disablePrompt = function _disablePrompt(login) {
+    if (webids.where({active:true}).length === 1) {
+      return confirm('Really deactivate ALL WebIDs?\n(Login not possible anymore without generating a new WebID)');
+    } else {
+      if (login) {
+        return confirm('Really deactivate the WebID you are currently logged in with?\n(Login only possible with an other active WebID afterwards)');
+      }
+      return true;
+    }
+  };
 
 //////////////////// views
 
@@ -65,8 +76,14 @@ $(document).ready(function _ready()
     _disable: function _disable(event) {
       event.preventDefault();
       event.stopPropagation();
-      this.model.set('active', !this.model.get('active'));
-      this.model.save();
+
+      if (!this.model.get('active')) {
+        this.model.set('active', true);
+        this.model.save();
+      } else if (_disablePrompt(this.model.get('login'))) {
+        this.model.set('active', !this.model.get('active'));
+        this.model.save();
+      }
     },
 
     _delete: function _delete(event) {
