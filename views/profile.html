@@ -8,7 +8,7 @@
           <div class="one columns"><span class="label">Name:</span></div><div class="five columns">{{= label }}</div>
           <div class="six columns">
             {{ if (active) { print('<span class="active">ACTIVE</span>'); } else { print('<span class="inactive">NOT ACTIVE</span>'); } }}
-            {{ if (profile === '<%= userData.profile %>') { print('<span class="loggedin">USED FOR LOGIN</span>'); } }}
+            {{ if (login) { print('<span class="loggedin">USED FOR LOGIN</span>'); } }}
           </div>
           <div class="three columns">
             {{ if (active) { print('<a href="#" class="button_disable">[disable]</a>'); } else { print('<a href="#" class="button_disable">[enable]</a>'); } }}
