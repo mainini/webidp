@@ -30,6 +30,11 @@ TODOs / Features
 * Label part of WebID?
 * Proper MIME-handling for errors and /id
 
+* Deployment
+    * <http://supervisord.org/>
+    * <https://github.com/dreamerslab/nodejs.production>
+    * <http://dailyjs.com/2011/03/07/node-deployment/>
+
 * Licensing
     * <http://www.debian.org/legal/licenses/>
     * <http://dev.perl.org/licenses/>
