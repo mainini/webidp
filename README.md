@@ -29,6 +29,7 @@ TODOs / Features
 * Session-locking
 * Label part of WebID?
 * Proper MIME-handling for errors and /id
+* Is it a proper LDP?
 
 * Deployment
     * <http://supervisord.org/>
