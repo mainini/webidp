@@ -30,6 +30,7 @@ TODOs / Features
 * Label part of WebID?
 * Proper MIME-handling for errors and /id
 * Is it a proper LDP?
+* Anonymity through changing/temporary profile URIs?
 
 * Deployment
     * <http://supervisord.org/>
