@@ -399,9 +399,9 @@ var _putWebId = function _putWebId(req, content, callback) {
         console.log('(success, results): ' + result.success + ', ' + result.results);
 
         if (cfg.get('debugMode')) {
-          callback(null, { error: err, result: result, active: !content.active }, { statusCode: 500 });
+          callback(null, { error: err, result: result }, { statusCode: 500 });
         } else {
-          callback(null, { error: 'Internal server error!', active: !content.active }, { statusCode: 500 });
+          callback(null, { error: 'Internal server error!' }, { statusCode: 500 });
         }
       }
     );
@@ -417,23 +417,29 @@ var _putWebId = function _putWebId(req, content, callback) {
  * @returns {Object}                  Returns a call to callback
  */
 var _deleteWebId = function _deleteWebIds(req, content, callback) {
-  var result = null;
   if (!req.session.webId) {
-
-    result = new Error('Unauthorized!');
-    result.statusCode = 401;
-    callback(result);
-
+    callback(null, { error: 'Unauthorized!' }, { statusCode: 401 });
   } else {
-    try {
-      store.deleteWebId(decodeURIComponent(req.params.webid), function _updateCB(result) {
-        return callback(null, result);
-      });
-    } catch (e) {
-      result = new Error(e.message);
-      result.statusCode = 500;
-      callback(result);
-    }
+    async.waterfall([
+      function _delete(cb) {
+        store.deleteWebId(decodeURIComponent(req.params.webid), cb);
+      },
+      function _restResult(result) {
+        callback(null, result);
+      }
+    ], function _err(err, result) {
+        console.log('ERROR occured in _deleteWebId()! Message was: ' + err);
+        if (result)  {
+          console.log('(success, results): ' + result.success + ', ' + result.results);
+        }
+
+        if (cfg.get('debugMode')) {
+          callback(null, { error: err, result: result }, { statusCode: 500 });
+        } else {
+          callback(null, { error: 'Internal server error!' }, { statusCode: 500 });
+        }
+      }
+    );
   }
 };
 
