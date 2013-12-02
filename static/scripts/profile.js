@@ -28,6 +28,13 @@ $(document).ready(function _ready()
     interpolate: /\{\{=(.+?)\}\}/g
   };
 
+  var _error = function _error(model, xhr) {
+    var response= JSON.parse(xhr.responseText);
+    alert(response.error);
+    webids.fetch({ error: _error });
+  };
+
+
 //////////////////// models and collections
 
   var WebID = Backbone.Model.extend({});
@@ -40,17 +47,6 @@ $(document).ready(function _ready()
   var webids = new WebIDList();
 
 
-  var _disablePrompt = function _disablePrompt(login) {
-    if (webids.where({active:true}).length === 1) {
-      return confirm('Really deactivate ALL WebIDs?\n(Login not possible anymore without generating a new WebID)');
-    } else {
-      if (login) {
-        return confirm('Really deactivate the WebID you are currently logged in with?\n(Login only possible with an other active WebID afterwards)');
-      }
-      return true;
-    }
-  };
-
 //////////////////// views
 
   var WebIDView = Backbone.View.extend({
@@ -60,7 +56,6 @@ $(document).ready(function _ready()
     initialize: function initialize() {
       this.listenTo(this.model, 'change', this.render);
       this.listenTo(this.model, 'destroy', this.remove);
-      this.listenTo(this.model, 'error', this._error);
       this.render();
     },
 
@@ -79,27 +74,48 @@ $(document).ready(function _ready()
 
       if (!this.model.get('active')) {
         this.model.set('active', true);
-        this.model.save();
-      } else if (_disablePrompt(this.model.get('login'))) {
+        this.model.save(null, { error: _error });
+      } else if (this._disablePrompt(this.model.get('login'))) {
         this.model.set('active', !this.model.get('active'));
-        this.model.save();
+        this.model.save(null, { error: _error });
       }
     },
 
     _delete: function _delete(event) {
       event.preventDefault();
       event.stopPropagation();
-      this.model.destroy();
+
+      if (this._deletePrompt(this.model.get('login'), this.model.get('active'))) {
+        this.model.destroy({ error: _error });
+      }
     },
 
-    _error: function _error(model, xhr) {
-      // interestingly, this also gets triggered on successful responses...
-      if (xhr.status !== 200) {
-        var response= JSON.parse(xhr.responseText);
-        this.model.set('active', response.active);
-        alert(response.error);
+    _disablePrompt: function _disablePrompt(login) {
+      if (webids.where({active:true}).length === 1) {
+        return confirm('Really deactivate ALL WebIDs?\n(Login not possible anymore without generating a new WebID)');
+      } else {
+        if (login) {
+          return confirm('Really deactivate the WebID you are currently logged in with?\n(Login only possible with an other active WebID afterwards)');
+        }
+        return true;
       }
-    }
+    },
+
+    _deletePrompt: function _deletePrompt(login, active) {
+      if (webids.where({active:true}).length === 1 && active) {
+        return confirm('Really delete the last active WebID?\n(Login not possible anymore without generating a new WebID)');
+      } else if (webids.length === 1) {
+        return confirm('Really delete the last WebID?\n(Login not possible anymore without generating a new WebID)');
+      } else {
+        if (login) {
+          return confirm('Really delete the WebID you are currently logged in with?\n(Login only possible with an other active WebID afterwards)');
+        } else {
+          return confirm('Really delete this WebID?');
+        }
+        return true;
+      }
+    },
+
   });
 
   var WebIDListView = Backbone.View.extend({
@@ -131,8 +147,5 @@ $(document).ready(function _ready()
   });
 
   var listView = new WebIDListView();
-  webids.fetch({error: function _fetchError(model, xhr) {
-    var response= JSON.parse(xhr.responseText);
-    alert(response.error);
-  }});
+  webids.fetch({ error: _error });
 });
