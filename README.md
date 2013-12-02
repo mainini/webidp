@@ -3,17 +3,36 @@ WebIDP
 
 Identity provider for [WebID](http://www.w3.org/2005/Incubator/webid/spec/).
 
-TODOs / Features
-================
+TODOs
+=====
 
-* Management-GUI
+Prio-1
+------
+* Admin-Login
 * LDAP
+* Remove name/label from the profile?
+* Licensing
+    * <http://www.debian.org/legal/licenses/>
+    * <http://dev.perl.org/licenses/>
+    * <http://www.digium.com/en/products/asterisk/licensing>
+    * <http://www.patentattorneys.ch/jahia/Jahia>
+* Deployment
+    * <http://supervisord.org/>
+    * <https://github.com/dreamerslab/nodejs.production>
+    * <http://dailyjs.com/2011/03/07/node-deployment/>
 
-* Input Validation
-* HTML Validation
-* Security Audit (https://www.owasp.org/index.php/Category:OWASP_Top_Ten_Project#OWASP_Top_10_for_2013)
-* Revoken von WebIDs wenn der LDAP-Account nicht mehr existiert?
-* Automated testing / code coverage
+Prio-2
+------
+* Proper parsing and verification of SPKAC
+* Cleanup-process for accounts not existing anymore
+* Prevent simultaneous changes from the same user logged in multiple times
+* Check input validation everywhere
+
+Prio-3
+------
+* Validate HTML
+* Security-"audit" (
+    * at least for <https://www.owasp.org/index.php/Category:OWASP_Top_Ten_Project#OWASP_Top_10_for_2013>
 * Disable RC4 / other ciphers
 * PFS
     * <https://tools.ietf.org/html/rfc6460>
@@ -21,24 +40,16 @@ TODOs / Features
     * <http://stackoverflow.com/questions/10201030/using-node-js-tls-passphrase-and-cipher-options-when-creating-a-server-and-clien>
     * <http://www.heise.de/security/artikel/Zukunftssicher-Verschluesseln-mit-Perfect-Forward-Secrecy-1923800.html>
 
+Features
+========
+* Proper MIME-handling for errors and /id
+* OCSP/CRL
+* Play around with automated testing / code coverage
 * Support for multiple user-directories or flat files 
   (for genereting pseudonymous/company-based WebIDs)
   or: let the user enter the data?
-* OCSP/CRL
-* Automated cleanup of expired webids
-* Session-locking
-* Label part of WebID?
-* Proper MIME-handling for errors and /id
-* Is it a proper LDP?
 * Anonymity through changing/temporary profile URIs?
-
-* Deployment
-    * <http://supervisord.org/>
-    * <https://github.com/dreamerslab/nodejs.production>
-    * <http://dailyjs.com/2011/03/07/node-deployment/>
-
-* Licensing
-    * <http://www.debian.org/legal/licenses/>
-    * <http://dev.perl.org/licenses/>
-    * <http://www.digium.com/en/products/asterisk/licensing>
-    * <http://www.patentattorneys.ch/jahia/Jahia>
+* Let the user specify additional content for his profile(s)?
+* Reusability
+    * Is it a proper LDP? Does ist have to be?
+    * How RESTful are the interfaces?
