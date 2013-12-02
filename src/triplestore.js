@@ -21,6 +21,7 @@
 'use strict';
 
 var rdfstore = require('rdfstore'),
+  async = require('async'),
   cfg = require('./config.js');
 
 
@@ -358,8 +359,76 @@ exports.TripleStore = (function() {
      * @param   {String}        webid       The WebID to delete
      * @param   {Function}      callback    Called on successful modification
      */
-    this.deleteWebId = function deleteWebId(webid, data, callback) {
-      callback(true);
+    this.deleteWebId = function deleteWebId(webid, callback) {
+      var _store = this.store;
+      var sparql = 'SELECT * WHERE { GRAPH <http://webidp.local/idp> {' +
+                   '  <' + webid + '> <http://webidp.local/vocab#profile> ?profile .' +
+                   '  <' + webid + '> <http://webidp.local/vocab#cert> ?cert .' +
+                   '} }';
+
+      async.waterfall([
+        function _gatherData(cb) {
+          _store.execute(sparql, function gatherCB(success, results) {
+            if (success) {
+              cb(null, results);
+            } else {
+              cb('ERROR while gathering data!', { success: success, results: results });
+            }
+          });
+        },
+        function _dropProfile(data, cb) {
+          if (data.length === 0) {
+            cb('ERROR: Tried to delete non-existing profile!');
+          } else {
+            sparql = 'DROP GRAPH <' + data[0].profile.value.valueOf().match(/(.*)#/)[1] + '>';
+            _store.execute(sparql, function dropCB(success, results) {
+              if (success) {
+                cb(null, data);
+              } else {
+                cb('ERROR while dropping profile!', { success: success, results: results });
+              }
+            });
+          }
+        },
+        function _deleteCert(data, cb) {
+          sparql = 'DELETE WHERE { GRAPH <http://webidp.local/idp> {' +
+                   '  <' + data[0].cert.value.valueOf() + '> ?p ?o .' +
+                   ' } }';
+          _store.execute(sparql, function deleteCertCB(success, results) {
+            if (success) {
+              cb(null, data);
+            } else {
+              cb('ERROR while deleting certificate data!', { success: success, results: results });
+            }
+          });
+        },
+        function _deleteWebID(data, cb) {
+          sparql = 'DELETE WHERE { GRAPH <http://webidp.local/idp> {' +
+                   ' <' + webid + '> ?p ?o .' +
+                   ' } }';
+          _store.execute(sparql, function deleteWebIDCB(success, results) {
+            if (success) {
+              cb(null, data);
+            } else {
+              cb('ERROR while deleting WebID data!', { success: success, results: results });
+            }
+          });
+        },
+        function _deleteAtUser(data, cb) {
+          sparql = 'DELETE WHERE { GRAPH <http://webidp.local/idp> {' +
+                   '  ?user <http://webidp.local/vocab#webID> <' + webid + '> .' +
+                   ' } }';
+          _store.execute(sparql, function deleteAtUserCB(success, results) {
+            if (success) {
+              callback(null);
+            } else {
+              cb('ERROR while deleting WebID-reference at user!', { success: success, results: results });
+            }
+          });
+        }
+      ], function _err(err, result) {
+        callback(err, result);
+      });
     };
 
     /**
