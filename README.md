@@ -20,6 +20,7 @@ Prio-1
     * <http://supervisord.org/>
     * <https://github.com/dreamerslab/nodejs.production>
     * <http://dailyjs.com/2011/03/07/node-deployment/>
+    * <http://yahooeng.tumblr.com/post/68823943185/nodejs-high-availability>
 
 Prio-2
 ------
