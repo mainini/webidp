@@ -180,11 +180,11 @@ exports.TripleStore = (function() {
     /**
      * Returns a specified WebID as Turtle.
      *
-     * @param   {Object}        id          UID of the WebID
+     * @param   {Object}        uid         UID of the WebID
      * @param   {Function}      callback    Called with the Turtle-data
      */
-    this.getId = function getId(id, callback) {
-      var profile = cfg.getIdUri() + id;
+    this.getId = function getId(uid, callback) {
+      var profile = cfg.getIdUri() + uid;
       var sparql = 'SELECT * WHERE { GRAPH <http://webidp.local/idp> {' +
                    '  ?webid <http://webidp.local/vocab#profile> <' + profile + '#' + cfg.get('webid:fragment') + '> .' +
                    '  ?webid <http://webidp.local/vocab#active> ?active .' +
@@ -214,14 +214,14 @@ exports.TripleStore = (function() {
     /**
      * Checks if a given UID already has a WebID with a given label.
      *
-     * @param   {Object}        id          UID of the WebID
+     * @param   {Object}        uid         UID of the WebID
      * @param   {Object}        label       The label to check for
      * @param   {Function}      callback    Called with two params: error and result. 
      *                                      error is null if everything went fine and the result of the check is in result (true/false)
      */
-    this.hasLabel = function hasLabel(id, label, callback) {
+    this.hasLabel = function hasLabel(uid, label, callback) {
       var sparql = 'SELECT ?label WHERE { GRAPH <http://webidp.local/idp> {' +
-                   '  <http://webidp.local/users#' + id + '> <http://webidp.local/vocab#webID> ?webid .' +
+                   '  <http://webidp.local/users#' + uid + '> <http://webidp.local/vocab#webID> ?webid .' +
                    '  ?webid  <http://webidp.local/vocab#label> ?label .' +
                    '} }';
       this.store.execute(sparql, function _querySuccess(success, results) {
