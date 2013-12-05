@@ -8,7 +8,6 @@ TODOs
 
 Prio-1
 ------
-* Admin-Login
 * LDAP
 * Remove name/label from the profile?
 * Licensing
