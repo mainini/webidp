@@ -35,6 +35,7 @@ Prio-3
 * Validate HTML
 * Security-"audit" (
     * at least for <https://www.owasp.org/index.php/Category:OWASP_Top_Ten_Project#OWASP_Top_10_for_2013>
+* Use SPARQL-ASK for hasLabel(), serialExists()
 * Disable RC4 / other ciphers
 * PFS
     * <https://tools.ietf.org/html/rfc6460>
