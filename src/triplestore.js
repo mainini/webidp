@@ -268,16 +268,21 @@ exports.TripleStore = (function() {
     };
 
     /**
-     * Retrieves (internal) information about all WebIDs a user has
+     * Retrieves (internal) information about all WebIDs a user has. Returns the same information for
+     * all WebIDs if no user is specified using profileURI
      *
-     * @param   {String}        uid         The id of the user of which to retrieve the information, or null to retrieve all
+     * @param   {String}        profileURI  The URI of the WebID used by the user to login or null to get all data
      * @param   {Function}      callback    Called with two params: error and result. 
      *                                      error if something bad happened, null otherwise and results containing an array of WebIDs
      */
-    this.getWebIds = function getWebIds(uid, callback) {
+    this.getWebIds = function getWebIds(profileURI, callback) {
       var sparql = 'SELECT * WHERE { GRAPH <http://webidp.local/idp> {' +
-                   '  ?webid a <http://webidp.local/vocab#WebID> .' +
-                   '  ?webid <http://webidp.local/vocab#label> ?label .' +
+                   '  ?webid a <http://webidp.local/vocab#WebID> .';
+      if (profileURI !== null) {
+        sparql +=  '  ?webid <http://webidp.local/vocab#belongsTo> ?user . ' +
+                   '  ?user <http://webidp.local/vocab#uid> "' + profileURI.match(/(\/.*)\/(.*)\/(.*)#/)[2] + '" .';
+      }
+      sparql +=    '  ?webid <http://webidp.local/vocab#label> ?label .' +
                    '  ?webid <http://webidp.local/vocab#profile> ?profile .' +
                    '  ?webid <http://webidp.local/vocab#active> ?active .' +
                    '  ?webid <http://webidp.local/vocab#startValidity> ?startValidity .' +
@@ -436,7 +441,7 @@ exports.TripleStore = (function() {
     /**
      * Retrieves (internal) information about a user
      *
-     * @param   {String}        profileUri  The URI of the WebID used by the user to login
+     * @param   {String}        profileURI  The URI of the WebID used by the user to login
      * @param   {Function}      callback    Called with a JSON-Object containing data about the currently logged in user
      */
     this.getUserData = function getUserData(profileURI, callback) {

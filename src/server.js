@@ -348,7 +348,7 @@ var _getWebIds = function _getWebIds(req, content, callback) {
   } else {
     async.waterfall([
       function _getWebIds(cb) {
-        store.getWebIds(null, cb);
+        store.getWebIds(req.session.webId.webid, cb);
       },
       function _restResult(result) {
         var ids = _.map(result, function _mapper(webid) {
