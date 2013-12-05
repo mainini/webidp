@@ -57,6 +57,7 @@ cfg.defaults({
     'validityStart': DEFAULT_VALIDITY_START,
     'validityEnd': DEFAULT_VALIDITY_END
   },
+  'administrators': [],
   'debugMode': false
 });
 

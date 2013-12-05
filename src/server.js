@@ -164,7 +164,11 @@ var _doLogin = function _doLogin (req, res, next) {
           // WebID-verification was successful!
 
           req.session.webId = new webid.Foaf(result).parse();
-          req.session.user = { uid: req.session.webId.webid.match(/.*\/(.*)\/.*/)[1] };
+          req.session.user = { uid: req.session.webId.webid.match(/^https:\/\/.*?\/id\/([^\/]+)\//)[1] };
+
+          if (cfg.get('administrators').indexOf(req.session.webId.webid) !== -1) {
+            req.session.user.administrator = true;
+          }
 
           try {
             store.getUserData(req.session.user.uid, req.session.webId.webid, function _dataCB(data) {
@@ -350,7 +354,11 @@ var _getWebIds = function _getWebIds(req, content, callback) {
   } else {
     async.waterfall([
       function _getWebIds(cb) {
-        store.getWebIds(req.session.user.uid, cb);
+        if (req.session.user.administrator) {
+          store.getWebIds(null, cb);
+        } else {
+          store.getWebIds(req.session.user.uid, cb);
+        }
       },
       function _restResult(result) {
         var ids = _.map(result, function _mapper(webid) {
@@ -387,7 +395,9 @@ var _getWebIds = function _getWebIds(req, content, callback) {
  */
 var _putWebId = function _putWebId(req, content, callback) {
   var reqId = decodeURIComponent(req.params.webid);
-  if (!req.session.webId || reqId.match(/.*\/(.*)\/.*/)[1] !== req.session.user.uid || content.id.match(/.*\/(.*)\/.*/)[1] != req.session.user.uid) {
+  if (!req.session.webId) {
+    callback(null, { error: 'Unauthorized!' }, { statusCode: 401 });
+  } else if (!req.session.user.administrator && (reqId.match(/^http:\/\/webidp\.local\/webids\/([^\/]+)\//)[1] !== req.session.user.uid || content.id.match(/^http:\/\/webidp\.local\/webids\/([^\/]+)\//)[1] !== req.session.user.uid)) {
     callback(null, { error: 'Unauthorized!' }, { statusCode: 401 });
   } else if (reqId !== content.id) {
     callback(null, { error: 'Mismatch between request and content!' }, { statusCode: 400 });
@@ -423,7 +433,9 @@ var _putWebId = function _putWebId(req, content, callback) {
  */
 var _deleteWebId = function _deleteWebIds(req, content, callback) {
   var reqId = decodeURIComponent(req.params.webid);
-  if (!req.session.webId || reqId.match(/.*\/(.*)\/.*/)[1] !== req.session.user.uid) {
+  if (!req.session.webId) {
+    callback(null, { error: 'Unauthorized!' }, { statusCode: 401 });
+  } else if (!req.session.user.administrator && reqId.match(/^http:\/\/webidp\.local\/webids\/([^\/]+)\//)[1] !== req.session.user.uid) {
     callback(null, { error: 'Unauthorized!' }, { statusCode: 401 });
   } else {
     async.waterfall([
