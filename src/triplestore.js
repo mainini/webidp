@@ -124,6 +124,7 @@ exports.TripleStore = (function() {
       jsonld = {
         '@id': 'http://webidp.local/users#' + id.uid,
         '@type': 'http://webidp.local/vocab#User',
+        'http://webidp.local/vocab#uid': id.uid,
         'http://webidp.local/vocab#name': name,
         'http://webidp.local/vocab#email': email,
         'http://webidp.local/vocab#webID': { '@id': 'http://webidp.local/webids/' + id.uid + '/' + id.hash }
@@ -165,12 +166,13 @@ exports.TripleStore = (function() {
 
         '@id': 'http://webidp.local/webids/' + id.uid + '/' + id.hash,
         '@type': 'http://webidp.local/vocab#WebID',
-        'http://webidp.local/vocab#label': label,
         'http://webidp.local/vocab#profile': { '@id': id.full },
+        'http://webidp.local/vocab#belongsTo': { '@id': 'http://webidp.local/users#' + id.uid },
         'http://webidp.local/vocab#active': true,
+        'http://webidp.local/vocab#cert': { '@id': 'http://webidp.local/certs#' + cert.cert.serialNumber },
         'startValidity': cert.cert.validity.notBefore.toISOString(),
         'endValidity': cert.cert.validity.notAfter.toISOString(),
-        'http://webidp.local/vocab#cert': { '@id': 'http://webidp.local/certs#' + cert.cert.serialNumber }
+        'http://webidp.local/vocab#label': label
       };
       this.store.load('application/ld+json', jsonld, 'http://webidp.local/idp', _storeLoad);
     };
