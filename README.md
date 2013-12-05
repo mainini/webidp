@@ -26,6 +26,7 @@ Prio-2
 ------
 * Proper parsing and verification of SPKAC
 * Cleanup-process for accounts not existing anymore
+* Clear HTML in profile view after the last WebID has been deleted
 * Prevent simultaneous changes from the same user logged in multiple times
 * Check input validation everywhere
 
