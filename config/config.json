@@ -5,8 +5,5 @@
       "organizationName": "Berne University of Applied Sciences"
     }
   },
-  "db": {
-    "enabled": false
-  },
   "debugMode": true
 }
