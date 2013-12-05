@@ -271,16 +271,16 @@ exports.TripleStore = (function() {
      * Retrieves (internal) information about all WebIDs a user has. Returns the same information for
      * all WebIDs if no user is specified using profileURI
      *
-     * @param   {String}        profileURI  The URI of the WebID used by the user to login or null to get all data
+     * @param   {String}        uid         The UID of the user or null to retrieve all WebIDs
      * @param   {Function}      callback    Called with two params: error and result. 
      *                                      error if something bad happened, null otherwise and results containing an array of WebIDs
      */
-    this.getWebIds = function getWebIds(profileURI, callback) {
+    this.getWebIds = function getWebIds(uid, callback) {
       var sparql = 'SELECT * WHERE { GRAPH <http://webidp.local/idp> {' +
                    '  ?webid a <http://webidp.local/vocab#WebID> .';
-      if (profileURI !== null) {
+      if (uid !== null) {
         sparql +=  '  ?webid <http://webidp.local/vocab#belongsTo> ?user . ' +
-                   '  ?user <http://webidp.local/vocab#uid> "' + profileURI.match(/(\/.*)\/(.*)\/(.*)#/)[2] + '" .';
+                   '  ?user <http://webidp.local/vocab#uid> "' + uid + '" .';
       }
       sparql +=    '  ?webid <http://webidp.local/vocab#label> ?label .' +
                    '  ?webid <http://webidp.local/vocab#profile> ?profile .' +
@@ -441,11 +441,11 @@ exports.TripleStore = (function() {
     /**
      * Retrieves (internal) information about a user
      *
+     * @param   {String}        uid         The UID of the logged-in user
      * @param   {String}        profileURI  The URI of the WebID used by the user to login
      * @param   {Function}      callback    Called with a JSON-Object containing data about the currently logged in user
      */
-    this.getUserData = function getUserData(profileURI, callback) {
-      var uid = profileURI.match(/(\/.*)\/(.*)\/(.*)#/)[2];
+    this.getUserData = function getUserData(uid, profileURI, callback) {
       var sparql = 'SELECT * WHERE { GRAPH <http://webidp.local/idp> {' +
                    '  <http://webidp.local/users#' + uid + '> <http://webidp.local/vocab#name> ?name .' +
                    '  <http://webidp.local/users#' + uid + '> <http://webidp.local/vocab#email> ?email .' +

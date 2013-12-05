@@ -167,7 +167,7 @@ var _doLogin = function _doLogin (req, res, next) {
           req.session.user = { uid: req.session.webId.webid.match(/.*\/(.*)\/.*/)[1] };
 
           try {
-            store.getUserData(req.session.webId.webid, function _dataCB(data) {
+            store.getUserData(req.session.user.uid, req.session.webId.webid, function _dataCB(data) {
               req.session.userData = data;
               next();
             });
@@ -350,7 +350,7 @@ var _getWebIds = function _getWebIds(req, content, callback) {
   } else {
     async.waterfall([
       function _getWebIds(cb) {
-        store.getWebIds(req.session.webId.webid, cb);
+        store.getWebIds(req.session.user.uid, cb);
       },
       function _restResult(result) {
         var ids = _.map(result, function _mapper(webid) {
