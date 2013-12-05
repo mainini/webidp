@@ -164,6 +164,8 @@ var _doLogin = function _doLogin (req, res, next) {
           // WebID-verification was successful!
 
           req.session.webId = new webid.Foaf(result).parse();
+          req.session.user = { uid: req.session.webId.webid.match(/.*\/(.*)\/.*/)[1] };
+
           try {
             store.getUserData(req.session.webId.webid, function _dataCB(data) {
               req.session.userData = data;
@@ -384,12 +386,15 @@ var _getWebIds = function _getWebIds(req, content, callback) {
  * @returns {Object}                  Returns a call to callback
  */
 var _putWebId = function _putWebId(req, content, callback) {
-  if (!req.session.webId) {
+  var reqId = decodeURIComponent(req.params.webid);
+  if (!req.session.webId || reqId.match(/.*\/(.*)\/.*/)[1] !== req.session.user.uid || content.id.match(/.*\/(.*)\/.*/)[1] != req.session.user.uid) {
     callback(null, { error: 'Unauthorized!' }, { statusCode: 401 });
+  } else if (reqId !== content.id) {
+    callback(null, { error: 'Mismatch between request and content!' }, { statusCode: 400 });
   } else {
     async.waterfall([
       function _update(cb) {
-        store.updateWebId(decodeURIComponent(req.params.webid), content, cb);
+        store.updateWebId(reqId, content, cb);
       },
       function _restResult(result) {
         callback(null, result);
@@ -417,12 +422,13 @@ var _putWebId = function _putWebId(req, content, callback) {
  * @returns {Object}                  Returns a call to callback
  */
 var _deleteWebId = function _deleteWebIds(req, content, callback) {
-  if (!req.session.webId) {
+  var reqId = decodeURIComponent(req.params.webid);
+  if (!req.session.webId || reqId.match(/.*\/(.*)\/.*/)[1] !== req.session.user.uid) {
     callback(null, { error: 'Unauthorized!' }, { statusCode: 401 });
   } else {
     async.waterfall([
       function _delete(cb) {
-        store.deleteWebId(decodeURIComponent(req.params.webid), cb);
+        store.deleteWebId(reqId, cb);
       },
       function _restResult(result) {
         callback(null, result);
