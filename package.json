@@ -1,6 +1,6 @@
 {
   "name": "webidp",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Identity provider for WebID with ldap-backend",
   "keywords": [
     "idp",
