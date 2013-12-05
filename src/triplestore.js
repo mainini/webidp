@@ -387,7 +387,7 @@ exports.TripleStore = (function() {
           if (data.length === 0) {
             cb('ERROR: Tried to delete non-existing profile!');
           } else {
-            sparql = 'DROP GRAPH <' + data[0].profile.value.valueOf().match(/(.*)#/)[1] + '>';
+            sparql = 'DROP GRAPH <' + data[0].profile.value.valueOf().match(/([^#]*)/)[1] + '>';
             _store.execute(sparql, function dropCB(success, results) {
               if (success) {
                 cb(null, data);
