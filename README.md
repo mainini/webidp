@@ -10,6 +10,7 @@ Prio-1
 ------
 * LDAP
 * Remove name/label from the profile?
+* Disable logging from connect-rest
 * Licensing
     * <http://www.debian.org/legal/licenses/>
     * <http://dev.perl.org/licenses/>
