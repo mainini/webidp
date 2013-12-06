@@ -25,7 +25,6 @@ Prio-2
 ------
 * Proper parsing and verification of SPKAC
 * Cleanup-process for accounts not existing anymore
-* Clear HTML in profile view after the last WebID has been deleted
 * Prevent simultaneous changes from the same user logged in multiple times
 * Check input validation everywhere
 
@@ -35,6 +34,10 @@ Prio-3
 * Security-"audit"
     * at least for <https://www.owasp.org/index.php/Category:OWASP_Top_Ten_Project#OWASP_Top_10_for_2013>
 * Use SPARQL-ASK for hasLabel(), serialExists()
+* Clear HTML in profile view after the last WebID has been deleted
+* Display UID and additional information for admin
+* Sorting/pagination
+* Anonymize URI? (no UID in URI)
 * Disable RC4 / other ciphers
 * PFS
     * <https://tools.ietf.org/html/rfc6460>
