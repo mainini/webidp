@@ -57,6 +57,16 @@ cfg.defaults({
     'validityStart': DEFAULT_VALIDITY_START,
     'validityEnd': DEFAULT_VALIDITY_END
   },
+  'directory': {
+    'backend': './ldap.js',
+    'config': {
+      'url': 'ldaps://your-ldapserver:636',
+      'adminDn': 'DN for binding',
+      'adminPassword': 'Password for binding',
+      'searchBase': 'Base-DN for searching',
+      'searchFilter': '(uid={{username}})'
+    }
+  },
   'administrators': [],
   'debugMode': false
 });

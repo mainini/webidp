@@ -97,6 +97,9 @@
       </form>
     </div>
 
+    <% if (directoryError) { %>
+      <div class="warning">Error during login: <%= directoryError %></div>
+    <% } %>
   <% } %>
 
 <% include foot.html %>

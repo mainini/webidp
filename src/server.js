@@ -36,6 +36,7 @@ var fs = require('fs'),
 ///////////////////// Setup triplestore
 
 var store = triplestore.TripleStore.getInstance();
+var directory = require(cfg.get('directory:backend'));
 
 
 /***********************************************************
@@ -263,19 +264,40 @@ var _create = function _create(req, res, next) {
   } else {
 
     if (req.body.uid) {
-      req.session.user = { uid: req.body.uid,
-                           name: 'Justus Testus',
-                           email: 'justus.testus@bfh.ch' };
+      directory.authenticate(req.body.uid, req.body.password, function loginCallback(error, attrs) {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+
+        if (error) {
+          var errorMsg = error;
+          if (error.name === 'InvalidCredentialsError') {
+            errorMsg = 'Invalid credentials - maybe password wrong?';
+          }
+
+          res.render('create.html', { 'debugMode': cfg.get('debugMode'),
+                                      'user': null,
+                                      'webId': null,
+                                      'newId': null,
+                                      'directoryError': errorMsg });
+        } else {
+          req.session.user = attrs;
+          res.render('create.html', { 'debugMode': cfg.get('debugMode'),
+                                      'challenge': crypto.generateChallenge(),
+                                      'user': req.session.user,
+                                      'webId': req.session.webId,
+                                      'newId': req.session.newId,
+                                      'directoryError': null });
+        }
+      });
+    } else {
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+      res.render('create.html', { 'debugMode': cfg.get('debugMode'),
+                                  'user': null,
+                                  'webId': null,
+                                  'newId': null,
+                                  'directoryError': null });
     }
-
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'text/html; charset=UTF-8');
-
-    res.render('create.html', { 'debugMode': cfg.get('debugMode'),
-                                'challenge': crypto.generateChallenge(),
-                                'user': req.session.user,
-                                'webId': req.session.webId,
-                                'newId': req.session.newId });
   }
 };
 
