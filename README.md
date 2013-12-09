@@ -8,7 +8,6 @@ TODOs
 
 Prio-1
 ------
-* LDAP
 * Remove name/label from the profile?
 * Disable logging from connect-rest
 * Licensing
@@ -24,6 +23,7 @@ Prio-1
 
 Prio-2
 ------
+* Use iterators
 * Proper parsing and verification of SPKAC
 * Cleanup-process for accounts not existing anymore
 * Prevent simultaneous changes from the same user logged in multiple times
@@ -45,6 +45,7 @@ Prio-3
     * <http://stackoverflow.com/questions/10185110/key-generation-requirements-for-tls-ecdhe-ecdsa-aes128-gcm-sha256>
     * <http://stackoverflow.com/questions/10201030/using-node-js-tls-passphrase-and-cipher-options-when-creating-a-server-and-clien>
     * <http://www.heise.de/security/artikel/Zukunftssicher-Verschluesseln-mit-Perfect-Forward-Secrecy-1923800.html>
+* Eventually make login-errors in /create single-page
 
 Features
 ========
