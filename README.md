@@ -8,33 +8,34 @@ TODOs
 
 Prio-1
 ------
-* Remove name/label from the profile?
+* Make name/label in profile optional
 * Disable logging from connect-rest
-* Licensing
-    * <http://www.debian.org/legal/licenses/>
-    * <http://dev.perl.org/licenses/>
-    * <http://www.digium.com/en/products/asterisk/licensing>
-    * <http://www.patentattorneys.ch/jahia/Jahia>
+* Cleanup-process for accounts not existing anymore
+* rdfstore-delete-bug
 * Deployment
     * <http://supervisord.org/>
     * <https://github.com/dreamerslab/nodejs.production>
     * <http://dailyjs.com/2011/03/07/node-deployment/>
     * <http://yahooeng.tumblr.com/post/68823943185/nodejs-high-availability>
+* Licensing
+    * <http://www.debian.org/legal/licenses/>
+    * <http://dev.perl.org/licenses/>
+    * <http://www.digium.com/en/products/asterisk/licensing>
+    * <http://www.patentattorneys.ch/jahia/Jahia>
 
 Prio-2
 ------
-* Use iterators
-* Proper parsing and verification of SPKAC
-* Cleanup-process for accounts not existing anymore
-* Prevent simultaneous changes from the same user logged in multiple times
 * Check input validation everywhere
+* Validate HTML
+* Use iterators
+* Use SPARQL-ASK for hasLabel(), serialExists()
+* Proper parsing and verification of SPKAC
+* Prevent simultaneous changes from the same user logged in multiple times
 
 Prio-3
 ------
-* Validate HTML
 * Security-"audit"
     * at least for <https://www.owasp.org/index.php/Category:OWASP_Top_Ten_Project#OWASP_Top_10_for_2013>
-* Use SPARQL-ASK for hasLabel(), serialExists()
 * Clear HTML in profile view after the last WebID has been deleted
 * Display UID and additional information for admin
 * Sorting/pagination
