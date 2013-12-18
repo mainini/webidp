@@ -8,6 +8,7 @@ TODOs
 
 Prio-1
 ------
+* TLS-Renegotiation (Frage Gere)
 * Make name/label in profile optional
 * Disable logging from connect-rest
 * Cleanup-process for accounts not existing anymore
