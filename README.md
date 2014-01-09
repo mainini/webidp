@@ -8,12 +8,13 @@ TODOs
 
 Prio-1
 ------
-* TLS-Renegotiation (Frage Gere)
+* TLS-Renegotiation (Frage Gere) (see also bergi's express-webid...)
 * Make name/label in profile optional
 * Disable logging from connect-rest
 * Cleanup-process for accounts not existing anymore
 * rdfstore-delete-bug
-* connect-webid-bug in installer
+* connect-webid-bug in installer (magnetik should redeploy to npm...)
+** eventually use <https://npmjs.org/package/express-webid> ? 
 * Deployment
     * <http://supervisord.org/>
     * <https://github.com/dreamerslab/nodejs.production>
