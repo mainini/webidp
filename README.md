@@ -13,6 +13,7 @@ Prio-1
 * Disable logging from connect-rest
 * Cleanup-process for accounts not existing anymore
 * rdfstore-delete-bug
+* connect-webid-bug in installer
 * Deployment
     * <http://supervisord.org/>
     * <https://github.com/dreamerslab/nodejs.production>
