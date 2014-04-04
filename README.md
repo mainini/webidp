@@ -21,6 +21,7 @@ Prio-1
     * <http://dailyjs.com/2011/03/07/node-deployment/>
     * <http://yahooeng.tumblr.com/post/68823943185/nodejs-high-availability>
 * Licensing
+    * <https://stackoverflow.com/questions/40100/apache-license-vs-bsd-vs-mit>
     * <http://www.debian.org/legal/licenses/>
     * <http://dev.perl.org/licenses/>
     * <http://www.digium.com/en/products/asterisk/licensing>
