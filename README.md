@@ -15,6 +15,7 @@ Prio-1
 * rdfstore-delete-bug
 * connect-webid-bug in installer (magnetik should redeploy to npm...)
 ** eventually use <https://npmjs.org/package/express-webid> ? 
+* CORS?
 * Deployment
     * <http://supervisord.org/>
     * <https://github.com/dreamerslab/nodejs.production>
