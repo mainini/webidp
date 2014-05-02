@@ -16,6 +16,12 @@ Prio-1
 * connect-webid-bug in installer (magnetik should redeploy to npm...)
 ** eventually use <https://npmjs.org/package/express-webid> ? 
 * CORS?
+* Disable RC4 / other ciphers
+* PFS
+    * <https://tools.ietf.org/html/rfc6460>
+    * <http://stackoverflow.com/questions/10185110/key-generation-requirements-for-tls-ecdhe-ecdsa-aes128-gcm-sha256>
+    * <http://stackoverflow.com/questions/10201030/using-node-js-tls-passphrase-and-cipher-options-when-creating-a-server-and-clien>
+    * <http://www.heise.de/security/artikel/Zukunftssicher-Verschluesseln-mit-Perfect-Forward-Secrecy-1923800.html>
 * Deployment
     * <http://supervisord.org/>
     * <https://github.com/dreamerslab/nodejs.production>
@@ -45,12 +51,6 @@ Prio-3
 * Display UID and additional information for admin
 * Sorting/pagination
 * Anonymize URI? (no UID in URI)
-* Disable RC4 / other ciphers
-* PFS
-    * <https://tools.ietf.org/html/rfc6460>
-    * <http://stackoverflow.com/questions/10185110/key-generation-requirements-for-tls-ecdhe-ecdsa-aes128-gcm-sha256>
-    * <http://stackoverflow.com/questions/10201030/using-node-js-tls-passphrase-and-cipher-options-when-creating-a-server-and-clien>
-    * <http://www.heise.de/security/artikel/Zukunftssicher-Verschluesseln-mit-Perfect-Forward-Secrecy-1923800.html>
 * Eventually make login-errors in /create single-page
 
 Features
