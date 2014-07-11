@@ -2,8 +2,8 @@
   "webid": {
     "subject": {
       "countryName": "CH",
-      "organizationName": "Berne University of Applied Sciences"
+      "organizationName": "My Organisation"
     }
   },
-  "debugMode": true
+  "debugMode": false
 }
