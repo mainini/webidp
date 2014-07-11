@@ -13,7 +13,7 @@
     "rdf",
     "linked data"
   ],
-  "homepage": "http://forschung.ti.bfh.ch/de/institute/institute_for_ict_based_management/forschungsgruppen/identity_and_access_management.html",
+  "homepage": "http://webidp.bfh.ch",
   "private": "true",
   "directories": {
   },
@@ -44,8 +44,8 @@
   "author": {
     "name":  "Pascal Mainini",
     "email": "pascal.mainini@bfh.ch",
-    "url":   "http://forschung.ti.bfh.ch/de/institute/institute_for_ict_based_management/forschungsgruppen/identity_and_access_management.html"
+    "url":   "http://mainini.ch"
   },
-  "license": "Proprietary, see LICENSE",
+  "license": "MIT",
   "readmeFilename": "README.md"
 }
