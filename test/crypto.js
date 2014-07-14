@@ -39,7 +39,7 @@ var caSerial = crypto.generateSerial();
 console.log('Generated CA serialnumber: ' + caSerial);
 
 // Certificate
-var caSubject = [{ name: 'organizationName', value: 'Berne University of Applied Sciences' },
+var caSubject = [{ name: 'organizationName', value: 'Bern University of Applied Sciences' },
                { name: 'organizationalUnitName', value: 'Engineering and Information Technology' },
                { name: 'countryName', value: 'CH' },
                { name: 'commonName', value: 'BFH WebID CA' }];
@@ -68,7 +68,7 @@ while (serverSerial === caSerial) {
 console.log('Generated server serialnumber: ' + serverSerial);
 
 // Certificate
-var serverSubject = [{ name: 'organizationName', value: 'Berne University of Applied Sciences' },
+var serverSubject = [{ name: 'organizationName', value: 'Bern University of Applied Sciences' },
                { name: 'countryName', value: 'CH' },
                { name: 'commonName', value: 'localhost' }];
 var serverCert = crypto.createServerCertificate(serverSubject, '127.0.0.1', serverKeys, serverSerial, caCert, caKeys, true);
