@@ -1,15 +1,11 @@
 /**
  * @file Clientside scripting for managing a user's profile
- * @copyright 2013 Berne University of Applied Sciences (BUAS) -- {@link http://bfh.ch}
+ * @copyright 2013-2014 BFH - Bern University of Applied Sciences -- {@link http://bfh.ch}
+ * @license MIT, see included file LICENSE or {@link http://opensource.org/licenses/MIT}
  * @author Pascal Mainini <pascal.mainini@bfh.ch>
  * @version 0.0.6
  *
- * ! WARNING ! WARNING ! WARNING ! WARNING ! WARNING ! WARNING !
- *
- * THIS FILE HAS NO DEFINITIVE LICENSING INFORMATION.
- * LICENSE IS SUBJECT OF CHANGE ANYTIME SOON - DO NOT DISTRIBUTE!
- *
- * ! WARNING ! WARNING ! WARNING ! WARNING ! WARNING ! WARNING !
+ * Code for the single page frontend application.
  *
  * Based on 
  * - http://documentcloud.github.io/backbone/docs/todos.html 
