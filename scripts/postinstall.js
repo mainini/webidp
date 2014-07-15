@@ -1,15 +1,9 @@
 /**
  * @file Postinstall-script for npm-package-manager
- * @copyright 2013 Berne University of Applied Sciences (BUAS) -- {@link http://bfh.ch}
+ * @copyright 2013-2014 BFH - Bern University of Applied Sciences -- {@link http://bfh.ch}
+ * @license MIT, see included file LICENSE or {@link http://opensource.org/licenses/MIT}
  * @author Pascal Mainini <pascal.mainini@bfh.ch>
  * @version 0.0.6
- *
- * ! WARNING ! WARNING ! WARNING ! WARNING ! WARNING ! WARNING !
- *
- * THIS FILE HAS NO DEFINITIVE LICENSING INFORMATION.
- * LICENSE IS SUBJECT OF CHANGE ANYTIME SOON - DO NOT DISTRIBUTE!
- *
- * ! WARNING ! WARNING ! WARNING ! WARNING ! WARNING ! WARNING !
  *
  * This script is run by npm after the installation. It is responsible for downloading
  * additional dependencies which are not (or not in a form needed) available as npm-packages.
