@@ -31,7 +31,7 @@ Then, go on with configuration as described in the next section. If you want to 
 testing with the test-code provided by *WebIDP*, run `node test/crypto.js` - this should generate the certificates 
 and place them into the `certs`-folder.
 
-After configuration, the server can be run by issuing `npm start`.
+After configuration, the server can be run by issuing `npm start` at the root of this repository.
 
 ### Database
 *WebIDP* can be run with or without a database storing the details about users and WebIDs. If run without, all
@@ -42,19 +42,19 @@ If you want to run *WebIDP* with a database, [MongoDB](http://www.mongodb.org) n
 Configuration
 -------------
 *WebIDP* is configured using the configuration file `config.json` in the `config`-folder The file has to be in 
-JSON syntax, a minimal example is provided. Additionally, the following options can be specified:
+[JSON](http://json.org/) syntax, a minimal example is provided. Additionally, the following options can be specified hierarchically:
 
 * **server** Configuration for the server itself
-    * **fqdn** The fully qualified domain name of the host running the server
+    * **fqdn** The fully qualified domain name of the host running the server, used for the WebID profile URI
     * **port** The port on which the server should listen
-    * **cert** Certificate used by the server for HTTPS-requests in PEM-format
-    * **key** Key belonging to the above certificate
+    * **cert** Path to the certificate used by the server for HTTPS-requests in PEM-format
+    * **key** Key belonging to the above certificate, also in PEM-format
     * **logformat** Format for the log messages, see [connect logger](http://www.senchalabs.org/connect/logger.html) for details
     * **cacheTemplates** Can be true or false; if false, the templates of the server's pages are parsed on every request (used for development)
 
 * **ca** Configuration of the certification authority signing the WebIDs
-    * **cert** Certificate used for signing the WebIDs in PEM-format
-    * **key** Key belonging to the above certificate
+    * **cert** Path to the certificate used for signing the WebIDs in PEM-format
+    * **key** Key belonging to the above certificate, also in PEM-format
 
 * **db** Configuration of the database
     * **enabled** Can be true or false; enables/disables the use of MongoDB as backend
@@ -71,7 +71,7 @@ JSON syntax, a minimal example is provided. Additionally, the following options 
     * **validityEnd** End of validity for the WebID-certificate, (defaults to start + one year), see src/config.js for details
 
 * **directory** Configuration of the directory backend used for login
-    * **backend** Path to the module providing the backend - typically src/ldap.js
+    * **backend** Path to the module providing the backend - typically `src/ldap.js`
     * **config** Configuration specific to the backend module (see below)
 
 * **administrators** A list of WebID-URIs with administrative permissions
@@ -81,7 +81,7 @@ JSON syntax, a minimal example is provided. Additionally, the following options 
 ### Configuration for the LDAP-backend
 The backend provided with *WebIDP* for using an LDAP-directory as authentication service supports the following options:
 
-* **url** A ldap:// or ldaps://-URL for connecting to the LDAP-server
+* **url** A `ldap://`- or `ldaps://`-URL for connecting to the LDAP-server
 * **adminDN** Distinguished name of the account used for the connection
 * **adminPassword** Password of the above account
 * **searchBase** Where in the tree to start the LDAP-search
@@ -90,7 +90,7 @@ The backend provided with *WebIDP* for using an LDAP-directory as authentication
 Debug Mode
 ----------
 *WebIDP* supports a debug mode which can be useful in development and troubleshooting; it should however never be used in
-a "productin" scenario when working with real users or data.
+a "production" scenario when working with real users or data.
 
 When enabled in the configuration (see above), debug mode changes some of the behavior of *WebIDP*:
 
@@ -103,7 +103,7 @@ When enabled in the configuration (see above), debug mode changes some of the be
 Open Points
 -----------
 Due to the limited time available in the project, not all features could have been implemented and some issues remain
-unresolved. The following list gives an overview of these open points for completeness:
+unresolved. The following list gives an overview of these open points for the sake of completeness:
 
 * **Privacy improvements**
     * Reduced profile information (no name/label)
