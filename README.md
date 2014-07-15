@@ -7,11 +7,13 @@ research project called [CV3.0](http://cv3.bfh.ch).
 
 *WebIDP* is a server application written in JavaScript, running in a [node.js](http://nodejs.org)-environment
 providing a HTML5-frontend for user interaction. The interface allows the user to generate one or
-many WebID(s) after a successful login to a directory service (currently only LDAP is supported.
+many WebID(s) after a successful login to a directory service (currently only LDAP is supported).
 
-After generation of a WebID, the user can then use this WebID to log in at WebID-enabled services and to the 
+After generation of a WebID, the user can then use this WebID to log in at WebID-enabled services or to the 
 *WebIDP* itself in order to manage all of his WebIDs. One or many WebIDs can be specified as administrator-WebIDs,
 enabling their users to manage all WebIDs of the server.
+
+More information can also be found on the [project page](http://webidp.bfh.ch).
 
 Installation
 ------------
