@@ -24,12 +24,12 @@ version 10.13) as well as of [npm](http://www.npmjs.org).
 As a next step, clone this repository to a place of your choice and run `npm install` at the top of it. This should
 install all dependencies.
 
-*Due to a bug in the [webid](https://www.npmjs.org/package/webid)-module, the module-file gets installed at the wrong 
-location! To fix this, change to the `node_modules/webid`-directory and move the file `webid.js` to the `bin`-folder.*
+*NOTE: Due to a bug in the [webid](https://www.npmjs.org/package/webid)-module, the module-file gets installed at the wrong 
+location! To fix this, change to the `node_modules/webid`-folder and move the file `webid.js` to the `bin`-folder.*
 
 Then, go on with configuration as described in the next section. If you want to generate all needed certificates for
 testing with the test-code provided by *WebIDP*, run `node test/crypto.js` - this should generate the certificates 
-and place them into the certs-directory.
+and place them into the `certs`-folder.
 
 After configuration, the server can be run by issuing `npm start`.
 
@@ -41,7 +41,7 @@ If you want to run *WebIDP* with a database, [MongoDB](http://www.mongodb.org) n
 
 Configuration
 -------------
-*WebIDP* is configured using the configuration file config.json in the config-directory. The file has to be in 
+*WebIDP* is configured using the configuration file `config.json` in the `config`-folder The file has to be in 
 JSON syntax, a minimal example is provided. Additionally, the following options can be specified:
 
 * **server** Configuration for the server itself
@@ -97,8 +97,8 @@ When enabled in the configuration (see above), debug mode changes some of the be
 * More verbose error messages
 * More verbose logging
 * Templates are not cached
-* Directory browsing is enabled for /static
-* A minimalistic SPARQL-console is provided at /sparql
+* Directory browsing is enabled for `/static`
+* A minimalistic SPARQL-console is provided at `/sparql`
 
 Open Points
 -----------
