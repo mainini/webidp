@@ -31,7 +31,7 @@
     "connect-rest":         "~0.7.1",
     "async":                "~0.2.9",
     "ldapauth":             "~2.2.4",
-    "webid":                ">=0.0.4"
+    "webid":                "~0.0.4"
   },
   "scripts": {
     "start": "node src/server.js",
