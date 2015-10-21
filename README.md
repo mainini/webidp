@@ -1,14 +1,14 @@
 WebIDP
 ======
 *WebIDP* is an identity provider for generating [WebIDs](http://www.w3.org/2005/Incubator/webid/spec/).
-It has been developed by [BFH - Bern University of Applied Sciences](http://www.bfh.ch) as a part of a 
+It has been developed by [BFH - Bern University of Applied Sciences](http://www.bfh.ch) as a part of a
 research project called [CV3.0](http://cv3.bfh.ch).
 
 *WebIDP* is a server application written in JavaScript, running in a [node.js](http://nodejs.org)-environment
 providing a HTML5-frontend for user interaction. The interface allows the user to generate one or
 many WebID(s) after a successful authentication to a directory service (currently only LDAP is supported).
 
-After generation of a WebID, the user can then use this WebID to log in at WebID-enabled services or to the 
+After generation of a WebID, the user can then use this WebID to log in at WebID-enabled services or to the
 *WebIDP* itself in order to manage all of his WebIDs. One or many WebIDs can be specified as administrator-WebIDs,
 enabling their users to manage all WebIDs of the server.
 
@@ -24,11 +24,11 @@ version 10.13) as well as of [npm](http://www.npmjs.org).
 As a next step, clone this repository to a place of your choice and run `npm install` at the top of it. This should
 install all dependencies.
 
-*NOTE: Due to a bug in the [webid](https://www.npmjs.org/package/webid)-module, the module-file gets installed at the wrong 
+*NOTE: Due to a bug in the [webid](https://www.npmjs.org/package/webid)-module, the module-file gets installed at the wrong
 location! To fix this, change to the `node_modules/webid`-folder and move the file `webid.js` to the `bin`-folder.*
 
 Then, go on with configuration as described in the next section. If you want to generate all needed certificates for
-testing with the test-code provided by *WebIDP*, run `node test/crypto.js` - this should generate the certificates 
+testing with the test-code provided by *WebIDP*, run `node test/crypto.js` - this should generate the certificates
 and place them into the `certs`-folder.
 
 After configuration, the server can be run by issuing `npm start` at the root of this repository.
@@ -37,11 +37,11 @@ After configuration, the server can be run by issuing `npm start` at the root of
 *WebIDP* can be run with or without a database storing the details about users and WebIDs. If run without, all
 data is lost after the server terminates.
 
-If you want to run *WebIDP* with a database, [MongoDB](http://www.mongodb.org) needs to be installed and set up accordingly. 
+If you want to run *WebIDP* with a database, [MongoDB](http://www.mongodb.org) needs to be installed and set up accordingly.
 
 Configuration
 -------------
-*WebIDP* is configured using the configuration file `config.json` in the `config`-folder The file has to be in 
+*WebIDP* is configured using the configuration file `config.json` in the `config`-folder The file has to be in
 [JSON](http://json.org/) syntax, a minimal example is provided. Additionally, the following options can be specified hierarchically:
 
 * **server** Configuration for the server itself
@@ -66,12 +66,12 @@ Configuration
 * **webid** Details of the generated WebIDs
     * **subject** Contains key/value pairs to be added to every WebID's subject - see the example configuration file
     * **sha256** Can be true or false; if true, signature of the WebID is done with SHA256 - otherwise with SHA1
-    * **fragment** Fragment of the WebID-URI like #profile, #me etc. 
+    * **fragment** Fragment of the WebID-URI like #profile, #me etc.
     * **validityStart** Start of validity for the WebID-certificate (defaults to now), see src/config.js for details
     * **validityEnd** End of validity for the WebID-certificate, (defaults to start + one year), see src/config.js for details
 
 * **directory** Configuration of the directory backend used for login
-    * **backend** Path to the module providing the backend - typically `src/ldap.js`
+    * **backend** Path to the module providing the backend - typically `./ldap.js`
     * **config** Configuration specific to the backend module (see below)
 
 * **administrators** A list of WebID-URIs with administrative permissions
@@ -114,7 +114,7 @@ unresolved. The following list gives an overview of these open points for the sa
 * **SSL-hardening** Use perfect forward secrecy on the server's port, disable unsecure ciphers etc.
 * **Input validation** Check if input is validated correctly everywhere
 * **Concurency** Currently, actions from the same user logged in multiple times aren't handled properly.
-* **UI-Improvements** 
+* **UI-Improvements**
     * Display UID-field for admins
     * Sorting/pagination
     * Clear UI after deletion of last WebID

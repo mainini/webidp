@@ -5,5 +5,11 @@
       "organizationName": "My Organisation"
     }
   },
+  "db": {
+    "enabled": false
+  },
+  "directory": {
+    "backend": "./dummy.js"
+  },
   "debugMode": false
 }
